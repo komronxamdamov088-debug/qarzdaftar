@@ -4,7 +4,11 @@ services:
     runtime: node
     plan: free
     rootDir: backend
-    buildCommand: npm install && npm run build
+    # NODE_ENV=production is set below (needed by the running app), but npm
+    # honors that same variable during install by skipping devDependencies —
+    # which is exactly where @nestjs/cli (the `nest build` command) lives.
+    # --include=dev forces it to install anyway, regardless of NODE_ENV.
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm run start:prod
     healthCheckPath: /
     envVars:
