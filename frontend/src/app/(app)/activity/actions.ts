@@ -4,13 +4,16 @@ import { revalidatePath } from "next/cache";
 import { extractApiErrorMessage } from "@/lib/api";
 import { markNotificationRead } from "@/lib/notifications-api";
 import { getServerToken } from "@/lib/session";
+import { getLocale } from "@/i18n/get-locale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 export async function markNotificationReadAction(
   id: string,
 ): Promise<{ ok: true } | { ok: false; message: string }> {
+  const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
-    return { ok: false, message: "Tizimga kirish talab qilinadi." };
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
   }
 
   try {
@@ -20,7 +23,8 @@ export async function markNotificationReadAction(
       ok: false,
       message: extractApiErrorMessage(
         error,
-        "Yangilashda xatolik yuz berdi.",
+        dict.apiErrors.GENERIC,
+        dict.apiErrors,
       ),
     };
   }

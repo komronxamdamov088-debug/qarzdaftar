@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "@/i18n/locale-context";
 import { deleteDebtAction } from "./actions";
 
 export function DeleteDebtButton({ debtId }: { debtId: string }) {
+  const { dict } = useTranslations();
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -15,7 +17,7 @@ export function DeleteDebtButton({ debtId }: { debtId: string }) {
         onClick={() => setConfirming(true)}
         className="flex-1 rounded-full border border-danger/40 py-2.5 text-sm font-medium text-danger"
       >
-        O&apos;chirish
+        {dict.deleteDebt.toggle}
       </button>
     );
   }
@@ -28,7 +30,7 @@ export function DeleteDebtButton({ debtId }: { debtId: string }) {
           onClick={() => setConfirming(false)}
           className="flex-1 rounded-full border border-black/10 py-2 text-xs font-medium"
         >
-          Bekor qilish
+          {dict.deleteDebt.cancel}
         </button>
         <button
           type="button"
@@ -43,7 +45,7 @@ export function DeleteDebtButton({ debtId }: { debtId: string }) {
           }
           className="flex-1 rounded-full bg-danger py-2 text-xs font-medium text-white disabled:opacity-60"
         >
-          {isPending ? "O'chirilmoqda..." : "Tasdiqlash"}
+          {isPending ? dict.deleteDebt.deleting : dict.deleteDebt.confirm}
         </button>
       </div>
       {error && <p className="text-xs text-danger">{error}</p>}

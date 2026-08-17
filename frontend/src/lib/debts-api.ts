@@ -51,6 +51,14 @@ export function getCurrentUser(token: string) {
   return apiFetch<CurrentUser>("/users/me", { token });
 }
 
+export function updateUserLocale(token: string, locale: "uz" | "ru") {
+  return apiFetch<CurrentUser>("/users/me/locale", {
+    method: "PATCH",
+    body: { locale },
+    token,
+  });
+}
+
 export function getStats(token: string) {
   return apiFetch<UserStats>("/stats", { token });
 }

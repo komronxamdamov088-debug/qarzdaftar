@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "@/i18n/locale-context";
 import { createPaymentAction } from "./actions";
 
 export function AddPaymentForm({
@@ -10,6 +11,7 @@ export function AddPaymentForm({
   debtId: string;
   maxAmount: number;
 }) {
+  const { dict } = useTranslations();
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
@@ -23,7 +25,7 @@ export function AddPaymentForm({
         onClick={() => setOpen(true)}
         className="flex-1 rounded-full border border-primary/40 py-2.5 text-sm font-medium text-primary"
       >
-        To&apos;lov qo&apos;shish
+        {dict.addPayment.toggle}
       </button>
     );
   }
@@ -32,11 +34,11 @@ export function AddPaymentForm({
     setError(null);
     const value = Number(amount);
     if (!amount || value <= 0) {
-      setError("Summani to'g'ri kiriting.");
+      setError(dict.addPayment.errorInvalidAmount);
       return;
     }
     if (value > maxAmount) {
-      setError("To'lov summasi qolgan summadan katta bo'lishi mumkin emas.");
+      setError(dict.addPayment.errorExceedsRemaining);
       return;
     }
     startTransition(async () => {
@@ -61,13 +63,13 @@ export function AddPaymentForm({
         inputMode="decimal"
         value={amount}
         onChange={(event) => setAmount(event.target.value)}
-        placeholder="To'lov summasi"
+        placeholder={dict.addPayment.amountPlaceholder}
         className="rounded-lg border border-black/10 px-3 py-2.5 text-sm"
       />
       <input
         value={note}
         onChange={(event) => setNote(event.target.value)}
-        placeholder="Izoh (ixtiyoriy)"
+        placeholder={dict.addPayment.notePlaceholder}
         className="rounded-lg border border-black/10 px-3 py-2.5 text-sm"
       />
       {error && <p className="text-xs text-danger">{error}</p>}
@@ -77,7 +79,7 @@ export function AddPaymentForm({
           onClick={() => setOpen(false)}
           className="flex-1 rounded-full border border-black/10 py-2 text-xs font-medium"
         >
-          Bekor qilish
+          {dict.addPayment.cancel}
         </button>
         <button
           type="button"
@@ -85,7 +87,7 @@ export function AddPaymentForm({
           disabled={isPending}
           className="flex-1 rounded-full bg-primary py-2 text-xs font-medium text-white disabled:opacity-60"
         >
-          {isPending ? "Saqlanmoqda..." : "Saqlash"}
+          {isPending ? dict.addPayment.saving : dict.addPayment.save}
         </button>
       </div>
     </div>

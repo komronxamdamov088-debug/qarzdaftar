@@ -10,20 +10,25 @@ import {
   deleteDebt,
   updateDebt,
 } from "@/lib/debts-api";
+import { initiateAuthenticatedCheckout } from "@/lib/payments-api";
 import { getServerToken } from "@/lib/session";
+import { getLocale } from "@/i18n/get-locale";
+import { getDictionary } from "@/i18n/dictionaries";
 import type {
   AiReminderTone,
   CreatePaymentInput,
   CreateReminderInput,
+  PaymentProviderName,
   UpdateDebtInput,
 } from "@/lib/types";
 
 export async function deleteDebtAction(
   id: string,
 ): Promise<{ ok: false; message: string } | undefined> {
+  const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
-    return { ok: false, message: "Tizimga kirish talab qilinadi." };
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
   }
 
   try {
@@ -33,7 +38,8 @@ export async function deleteDebtAction(
       ok: false,
       message: extractApiErrorMessage(
         error,
-        "Qarzni o'chirishda xatolik yuz berdi.",
+        dict.apiErrors.GENERIC,
+        dict.apiErrors,
       ),
     };
   }
@@ -46,9 +52,10 @@ export async function updateDebtAction(
   id: string,
   input: UpdateDebtInput,
 ): Promise<{ ok: false; message: string } | undefined> {
+  const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
-    return { ok: false, message: "Tizimga kirish talab qilinadi." };
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
   }
 
   try {
@@ -56,7 +63,11 @@ export async function updateDebtAction(
   } catch (error) {
     return {
       ok: false,
-      message: extractApiErrorMessage(error, "Saqlashda xatolik yuz berdi."),
+      message: extractApiErrorMessage(
+        error,
+        dict.apiErrors.GENERIC,
+        dict.apiErrors,
+      ),
     };
   }
 
@@ -68,9 +79,10 @@ export async function createPaymentAction(
   debtId: string,
   input: CreatePaymentInput,
 ): Promise<{ ok: false; message: string } | { ok: true } | undefined> {
+  const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
-    return { ok: false, message: "Tizimga kirish talab qilinadi." };
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
   }
 
   try {
@@ -80,7 +92,8 @@ export async function createPaymentAction(
       ok: false,
       message: extractApiErrorMessage(
         error,
-        "To'lovni saqlashda xatolik yuz berdi.",
+        dict.apiErrors.GENERIC,
+        dict.apiErrors,
       ),
     };
   }
@@ -93,9 +106,10 @@ export async function generateAiReminderAction(
   debtId: string,
   tone: AiReminderTone,
 ): Promise<{ ok: false; message: string } | { ok: true; message: string }> {
+  const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
-    return { ok: false, message: "Tizimga kirish talab qilinadi." };
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
   }
 
   try {
@@ -106,7 +120,36 @@ export async function generateAiReminderAction(
       ok: false,
       message: extractApiErrorMessage(
         error,
-        "AI xabar yaratishda xatolik yuz berdi.",
+        dict.apiErrors.GENERIC,
+        dict.apiErrors,
+      ),
+    };
+  }
+}
+
+export async function initiateCheckoutAction(
+  debtId: string,
+  provider: PaymentProviderName,
+): Promise<
+  | { ok: false; message: string }
+  | { ok: true; checkoutUrl: string }
+> {
+  const dict = getDictionary(await getLocale());
+  const token = await getServerToken();
+  if (!token) {
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
+  }
+
+  try {
+    const result = await initiateAuthenticatedCheckout(token, debtId, provider);
+    return { ok: true, checkoutUrl: result.checkoutUrl };
+  } catch (error) {
+    return {
+      ok: false,
+      message: extractApiErrorMessage(
+        error,
+        dict.apiErrors.GENERIC,
+        dict.apiErrors,
       ),
     };
   }
@@ -116,9 +159,10 @@ export async function createReminderAction(
   debtId: string,
   input: CreateReminderInput,
 ): Promise<{ ok: false; message: string } | { ok: true } | undefined> {
+  const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
-    return { ok: false, message: "Tizimga kirish talab qilinadi." };
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
   }
 
   try {
@@ -128,7 +172,8 @@ export async function createReminderAction(
       ok: false,
       message: extractApiErrorMessage(
         error,
-        "Eslatmani saqlashda xatolik yuz berdi.",
+        dict.apiErrors.GENERIC,
+        dict.apiErrors,
       ),
     };
   }

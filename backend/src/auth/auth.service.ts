@@ -14,6 +14,7 @@ export interface AuthResult {
     id: string;
     name: string;
     role: string;
+    locale: string;
   };
 }
 
@@ -53,7 +54,12 @@ export class AuthService {
 
     return {
       accessToken,
-      user: { id: user.id, name: user.name, role: user.role },
+      user: {
+        id: user.id,
+        name: user.name,
+        role: user.role,
+        locale: user.locale,
+      },
     };
   }
 }

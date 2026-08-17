@@ -8,10 +8,10 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { PushService } from '../push/push.service';
 import { TelegramService } from '../telegram/telegram.service';
 import { Reminder } from './entities/reminder.entity';
-
-function formatSom(amount: string): string {
-  return `${Math.round(Number(amount)).toLocaleString('uz-UZ').replace(/,/g, ' ')} so'm`;
-}
+import {
+  formatSom,
+  getNotificationsI18n,
+} from '../common/i18n/notifications-i18n';
 
 @Injectable()
 export class ReminderSchedulerService {
@@ -52,10 +52,12 @@ export class ReminderSchedulerService {
       const counterparty =
         debt.lender_id === reminder.user_id ? debt.borrower : debt.lender;
 
-      const title = 'Qarz eslatmasi';
-      const body = `${counterparty.name} bilan bo'lgan ${formatSom(
-        debt.remaining_amount,
-      )} qarzingizning qaytarish sanasi yaqinlashmoqda.`;
+      const i18n = getNotificationsI18n(user.locale);
+      const title = i18n.reminderTitle;
+      const body = i18n.reminderBody(
+        counterparty.name,
+        formatSom(debt.remaining_amount, user.locale),
+      );
 
       await this.notificationsService.create(
         reminder.user_id,

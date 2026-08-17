@@ -34,7 +34,10 @@ export class DebtsService {
     );
 
     if (counterparty.id === currentUserId) {
-      throw new ForbiddenException("O'zingizga qarz yoza olmaysiz");
+      throw new ForbiddenException({
+        code: 'CANNOT_DEBT_SELF',
+        message: "O'zingizga qarz yoza olmaysiz",
+      });
     }
 
     const lenderId = dto.type === 'given' ? currentUserId : counterparty.id;
@@ -141,7 +144,10 @@ export class DebtsService {
     }
     const debt = data as unknown as DebtWithParties | null;
     if (!debt) {
-      throw new NotFoundException('Qarz topilmadi');
+      throw new NotFoundException({
+        code: 'DEBT_NOT_FOUND',
+        message: 'Qarz topilmadi',
+      });
     }
     this.assertOwnership(userId, debt);
     return debt;
@@ -213,7 +219,10 @@ export class DebtsService {
     }
     const debt = data as unknown as DebtWithParties | null;
     if (!debt) {
-      throw new NotFoundException("Havola yaroqsiz yoki muddati o'tgan");
+      throw new NotFoundException({
+        code: 'INVALID_TOKEN',
+        message: "Havola yaroqsiz yoki muddati o'tgan",
+      });
     }
     return debt;
   }
@@ -225,7 +234,10 @@ export class DebtsService {
     const debt = await this.findByToken(token);
 
     if (debt.confirmation_status !== 'pending') {
-      throw new BadRequestException("Bu qarz allaqachon ko'rib chiqilgan");
+      throw new BadRequestException({
+        code: 'DEBT_ALREADY_REVIEWED',
+        message: "Bu qarz allaqachon ko'rib chiqilgan",
+      });
     }
 
     const confirmationStatus = action === 'confirm' ? 'confirmed' : 'rejected';
@@ -248,14 +260,20 @@ export class DebtsService {
       throw new InternalServerErrorException(error.message);
     }
     if (!data) {
-      throw new BadRequestException("Bu qarz allaqachon ko'rib chiqilgan");
+      throw new BadRequestException({
+        code: 'DEBT_ALREADY_REVIEWED',
+        message: "Bu qarz allaqachon ko'rib chiqilgan",
+      });
     }
     return data as unknown as DebtWithParties;
   }
 
   private assertOwnership(userId: string, debt: DebtWithParties): void {
     if (debt.lender_id !== userId && debt.borrower_id !== userId) {
-      throw new ForbiddenException('Bu qarz sizga tegishli emas');
+      throw new ForbiddenException({
+        code: 'FORBIDDEN',
+        message: 'Bu qarz sizga tegishli emas',
+      });
     }
   }
 }

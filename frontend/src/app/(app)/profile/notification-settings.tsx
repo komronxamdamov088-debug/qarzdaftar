@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "@/i18n/locale-context";
 import {
   subscribeToPushAction,
   unsubscribeFromPushAction,
@@ -21,6 +22,7 @@ export function NotificationSettings({
   pushEnabled: boolean;
   telegramEnabled: boolean;
 }) {
+  const { dict } = useTranslations();
   const [supported, setSupported] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,13 +57,13 @@ export function NotificationSettings({
       try {
         const permission = await Notification.requestPermission();
         if (permission !== "granted") {
-          setError("Bildirishnoma ruxsati berilmadi.");
+          setError(dict.notificationSettings.permissionDenied);
           return;
         }
 
         const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
         if (!publicKey) {
-          setError("Push bildirishnoma hali sozlanmagan.");
+          setError(dict.notificationSettings.notConfigured);
           return;
         }
 
@@ -73,7 +75,7 @@ export function NotificationSettings({
 
         const json = subscription.toJSON();
         if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) {
-          setError("Obuna ma'lumotlari to'liq emas.");
+          setError(dict.notificationSettings.incompleteSubscription);
           return;
         }
 
@@ -87,7 +89,7 @@ export function NotificationSettings({
         }
         setSubscribed(true);
       } catch {
-        setError("Push bildirishnomani yoqishda xatolik yuz berdi.");
+        setError(dict.notificationSettings.enableError);
       }
     });
   }
@@ -105,7 +107,7 @@ export function NotificationSettings({
         }
         setSubscribed(false);
       } catch {
-        setError("O'chirishda xatolik yuz berdi.");
+        setError(dict.notificationSettings.disableError);
       }
     });
   }
@@ -128,12 +130,12 @@ export function NotificationSettings({
   return (
     <section className="flex flex-col gap-4 rounded-xl bg-card px-4 py-4 shadow-sm">
       <h2 className="text-sm font-medium text-muted-foreground">
-        Bildirishnomalar
+        {dict.notificationSettings.title}
       </h2>
 
       {supported ? (
         <div className="flex items-center justify-between text-sm">
-          <span>Ushbu qurilmada push bildirishnoma</span>
+          <span>{dict.notificationSettings.devicePush}</span>
           {subscribed ? (
             <button
               type="button"
@@ -141,7 +143,7 @@ export function NotificationSettings({
               disabled={isPending}
               className="rounded-full border border-black/10 px-3 py-1.5 text-xs font-medium disabled:opacity-60"
             >
-              O&apos;chirish
+              {dict.notificationSettings.disable}
             </button>
           ) : (
             <button
@@ -150,18 +152,18 @@ export function NotificationSettings({
               disabled={isPending}
               className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-white disabled:opacity-60"
             >
-              Yoqish
+              {dict.notificationSettings.enable}
             </button>
           )}
         </div>
       ) : (
         <p className="text-xs text-muted-foreground">
-          Ushbu qurilma/brauzer push bildirishnomalarni qo&apos;llab-quvvatlamaydi.
+          {dict.notificationSettings.notSupported}
         </p>
       )}
 
       <label className="flex items-center justify-between text-sm">
-        Web Push orqali eslatmalar
+        {dict.notificationSettings.webPushLabel}
         <input
           type="checkbox"
           defaultChecked={pushEnabled}
@@ -173,7 +175,7 @@ export function NotificationSettings({
       </label>
 
       <label className="flex items-center justify-between text-sm">
-        Telegram orqali eslatmalar
+        {dict.notificationSettings.telegramLabel}
         <input
           type="checkbox"
           defaultChecked={telegramEnabled}

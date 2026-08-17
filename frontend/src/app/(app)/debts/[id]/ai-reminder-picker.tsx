@@ -2,17 +2,19 @@
 
 import { useState, useTransition } from "react";
 import type { AiReminderTone } from "@/lib/types";
+import { useTranslations } from "@/i18n/locale-context";
 import { generateAiReminderAction } from "./actions";
 
-const TONE_OPTIONS: { tone: AiReminderTone; label: string }[] = [
-  { tone: "dostona", label: "Do'stona" },
-  { tone: "hurmatli", label: "Hurmatli" },
-  { tone: "qisqa", label: "Qisqa" },
-  { tone: "rasmiy", label: "Rasmiy" },
-  { tone: "hazilomuz", label: "Hazilomuz" },
+const TONES: AiReminderTone[] = [
+  "dostona",
+  "hurmatli",
+  "qisqa",
+  "rasmiy",
+  "hazilomuz",
 ];
 
 export function AiReminderPicker({ debtId }: { debtId: string }) {
+  const { dict } = useTranslations();
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +53,7 @@ export function AiReminderPicker({ debtId }: { debtId: string }) {
         onClick={() => setOpen(true)}
         className="w-full rounded-full border border-black/10 py-2.5 text-sm font-medium"
       >
-        AI eslatma yaratish
+        {dict.aiReminder.toggle}
       </button>
     );
   }
@@ -59,7 +61,7 @@ export function AiReminderPicker({ debtId }: { debtId: string }) {
   return (
     <div className="flex flex-col gap-3 rounded-xl bg-card px-4 py-4 shadow-sm">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">AI eslatma</h3>
+        <h3 className="text-sm font-medium">{dict.aiReminder.title}</h3>
         <button
           type="button"
           onClick={() => {
@@ -69,26 +71,28 @@ export function AiReminderPicker({ debtId }: { debtId: string }) {
           }}
           className="text-xs text-muted-foreground"
         >
-          Yopish
+          {dict.aiReminder.close}
         </button>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {TONE_OPTIONS.map((option) => (
+        {TONES.map((tone) => (
           <button
-            key={option.tone}
+            key={tone}
             type="button"
             disabled={isPending}
-            onClick={() => generate(option.tone)}
+            onClick={() => generate(tone)}
             className="rounded-full border border-black/10 px-3 py-1.5 text-xs font-medium disabled:opacity-60"
           >
-            {option.label}
+            {dict.aiReminder.tones[tone]}
           </button>
         ))}
       </div>
 
       {isPending && (
-        <p className="text-xs text-muted-foreground">Yaratilmoqda...</p>
+        <p className="text-xs text-muted-foreground">
+          {dict.aiReminder.generating}
+        </p>
       )}
       {error && <p className="text-xs text-danger">{error}</p>}
 
@@ -101,15 +105,14 @@ export function AiReminderPicker({ debtId }: { debtId: string }) {
             className="rounded-lg border border-black/10 bg-background px-3 py-2 text-sm"
           />
           <p className="text-xs text-muted-foreground">
-            Xabarni tahrirlashingiz mumkin. Yuborish uchun nusxalab, Telegram
-            yoki SMS orqali o&apos;zingiz yuboring.
+            {dict.aiReminder.editHint}
           </p>
           <button
             type="button"
             onClick={copy}
             className="self-start rounded-full bg-primary px-4 py-2 text-xs font-medium text-white"
           >
-            {copied ? "Nusxalandi" : "Nusxalash"}
+            {copied ? dict.aiReminder.copied : dict.aiReminder.copy}
           </button>
         </div>
       )}

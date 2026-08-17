@@ -4,6 +4,8 @@ import Script from "next/script";
 import "./globals.css";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import { TelegramThemeSync } from "@/components/telegram-theme-sync";
+import { getLocale } from "@/i18n/get-locale";
+import { LocaleProvider } from "@/i18n/locale-context";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -25,9 +27,11 @@ export const viewport: Viewport = {
   themeColor: "#2563EB",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const locale = await getLocale();
+
   return (
-    <html lang="uz" className={`${inter.variable} h-full antialiased`}>
+    <html lang={locale} className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Script
           src="https://telegram.org/js/telegram-web-app.js"
@@ -35,7 +39,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
         <ServiceWorkerRegistration />
         <TelegramThemeSync />
-        {children}
+        <LocaleProvider locale={locale}>
+          {children}
+        </LocaleProvider>
       </body>
     </html>
   );

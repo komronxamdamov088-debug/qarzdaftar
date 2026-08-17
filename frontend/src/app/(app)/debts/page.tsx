@@ -6,6 +6,8 @@ import { DebtCard } from "@/components/debt-card";
 import { DebtFilters } from "@/components/debt-filters";
 import { SignInRequired } from "@/components/sign-in-required";
 import { ErrorState } from "@/components/error-state";
+import { getLocale } from "@/i18n/get-locale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 async function loadDebts(
   token: string,
@@ -50,6 +52,8 @@ function asSort(
 }
 
 export default async function DebtsPage(props: PageProps<"/debts">) {
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
   const token = await getServerToken();
   if (!token) {
     return <SignInRequired />;
@@ -73,16 +77,21 @@ export default async function DebtsPage(props: PageProps<"/debts">) {
 
   return (
     <main className="flex flex-1 flex-col gap-4 py-6">
-      <h1 className="px-4 text-xl font-semibold">Qarzlar</h1>
+      <h1 className="px-4 text-xl font-semibold">{dict.debtsPage.title}</h1>
       <DebtFilters />
       <div className="flex flex-col gap-2 px-4">
         {debts.length === 0 ? (
           <p className="py-10 text-center text-sm text-muted-foreground">
-            Hech narsa topilmadi.
+            {dict.debtsPage.empty}
           </p>
         ) : (
           debts.map((debt) => (
-            <DebtCard key={debt.id} debt={debt} currentUserId={user.id} />
+            <DebtCard
+              key={debt.id}
+              debt={debt}
+              currentUserId={user.id}
+              locale={locale}
+            />
           ))
         )}
       </div>

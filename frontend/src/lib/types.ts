@@ -75,6 +75,7 @@ export interface CurrentUser {
   role: "user" | "admin";
   push_enabled: boolean;
   telegram_enabled: boolean;
+  locale: "uz" | "ru";
   created_at: string;
   updated_at: string;
 }
@@ -99,12 +100,40 @@ export interface UpdateNotificationPreferencesInput {
   telegramEnabled?: boolean;
 }
 
+export type PaymentProviderName = "click" | "payme" | "qulay_pay";
+
+export type PaymentMethod = "cash" | PaymentProviderName;
+
 export interface Payment {
   id: string;
   debt_id: string;
   amount: string;
   note: string | null;
+  method: PaymentMethod;
+  provider_transaction_id: string | null;
   paid_at: string;
+  created_at: string;
+}
+
+export interface CheckoutResult {
+  checkoutUrl: string;
+  transactionId: string;
+}
+
+export interface Receipt {
+  id: string;
+  payment_id: string;
+  debt_id: string;
+  receipt_number: string;
+  payer_name: string;
+  recipient_name: string;
+  payment_amount: string;
+  debt_original_amount: string;
+  debt_paid_amount: string;
+  debt_remaining_amount: string;
+  method: PaymentMethod;
+  debt_status: DebtStatus;
+  locale: "uz" | "ru";
   created_at: string;
 }
 

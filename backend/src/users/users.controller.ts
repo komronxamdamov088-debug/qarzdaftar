@@ -3,6 +3,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.interface';
 import { UsersService } from './users.service';
 import { UpdateNotificationPreferencesDto } from './dto/update-notification-preferences.dto';
+import { UpdateLocaleDto } from './dto/update-locale.dto';
 
 @Controller('users')
 export class UsersController {
@@ -19,5 +20,13 @@ export class UsersController {
     @Body() dto: UpdateNotificationPreferencesDto,
   ) {
     return this.usersService.updateNotificationPreferences(user.id, dto);
+  }
+
+  @Patch('me/locale')
+  updateLocale(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdateLocaleDto,
+  ) {
+    return this.usersService.updateLocale(user.id, dto);
   }
 }

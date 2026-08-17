@@ -41,7 +41,10 @@ export class RemindersService {
   ): Promise<Reminder> {
     const debt = await this.debtsService.findOneForUser(userId, debtId);
     if (!debt.due_date) {
-      throw new BadRequestException('Bu qarzda qaytarish sanasi belgilanmagan');
+      throw new BadRequestException({
+        code: 'NO_DUE_DATE',
+        message: 'Bu qarzda qaytarish sanasi belgilanmagan',
+      });
     }
 
     const { data, error } = await this.supabase
@@ -78,9 +81,10 @@ export class RemindersService {
 
   private mapInsertError(error: PostgrestError): Error {
     if (error.code === UNIQUE_VIOLATION) {
-      return new BadRequestException(
-        'Bu turdagi eslatma allaqachon rejalashtirilgan',
-      );
+      return new BadRequestException({
+        code: 'REMINDER_ALREADY_SCHEDULED',
+        message: 'Bu turdagi eslatma allaqachon rejalashtirilgan',
+      });
     }
     return new InternalServerErrorException(error.message);
   }

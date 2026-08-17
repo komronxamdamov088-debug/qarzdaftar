@@ -8,6 +8,7 @@ import { SUPABASE_CLIENT } from '../database/supabase.provider';
 import type { SupabaseClient } from '../database/supabase.provider';
 import { User } from './entities/user.entity';
 import { UpdateNotificationPreferencesDto } from './dto/update-notification-preferences.dto';
+import { UpdateLocaleDto } from './dto/update-locale.dto';
 
 @Injectable()
 export class UsersService {
@@ -72,6 +73,20 @@ export class UsersService {
           telegram_enabled: dto.telegramEnabled,
         }),
       })
+      .eq('id', userId)
+      .select('*')
+      .single();
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    return data;
+  }
+
+  async updateLocale(userId: string, dto: UpdateLocaleDto): Promise<User> {
+    const { data, error } = await this.supabase
+      .from('users')
+      .update({ locale: dto.locale })
       .eq('id', userId)
       .select('*')
       .single();

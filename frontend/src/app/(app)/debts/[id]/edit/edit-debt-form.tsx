@@ -2,9 +2,11 @@
 
 import { useState, useTransition } from "react";
 import type { Debt, UpdateDebtInput } from "@/lib/types";
+import { useTranslations } from "@/i18n/locale-context";
 import { updateDebtAction } from "../actions";
 
 export function EditDebtForm({ debt }: { debt: Debt }) {
+  const { dict } = useTranslations();
   const [amount, setAmount] = useState(debt.amount);
   const [dueDate, setDueDate] = useState(debt.due_date ?? "");
   const [note, setNote] = useState(debt.note ?? "");
@@ -14,7 +16,7 @@ export function EditDebtForm({ debt }: { debt: Debt }) {
   function submit() {
     setError(null);
     if (!amount || Number(amount) <= 0) {
-      setError("Summani to'g'ri kiriting.");
+      setError(dict.editDebt.errorInvalidAmount);
       return;
     }
     const input: UpdateDebtInput = {
@@ -32,10 +34,10 @@ export function EditDebtForm({ debt }: { debt: Debt }) {
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-4 py-6">
-      <h1 className="text-lg font-semibold">Tahrirlash</h1>
+      <h1 className="text-lg font-semibold">{dict.editDebt.title}</h1>
 
       <label className="flex flex-col gap-1 text-sm">
-        Summa
+        {dict.editDebt.amountLabel}
         <input
           type="number"
           inputMode="decimal"
@@ -46,7 +48,7 @@ export function EditDebtForm({ debt }: { debt: Debt }) {
       </label>
 
       <label className="flex flex-col gap-1 text-sm">
-        Qaytarish sanasi
+        {dict.editDebt.dueDateLabel}
         <input
           type="date"
           value={dueDate}
@@ -56,7 +58,7 @@ export function EditDebtForm({ debt }: { debt: Debt }) {
       </label>
 
       <label className="flex flex-col gap-1 text-sm">
-        Izoh
+        {dict.editDebt.noteLabel}
         <textarea
           value={note}
           onChange={(event) => setNote(event.target.value)}
@@ -73,7 +75,7 @@ export function EditDebtForm({ debt }: { debt: Debt }) {
         disabled={isPending}
         className="mt-auto rounded-full bg-primary py-3 text-sm font-medium text-white disabled:opacity-60"
       >
-        {isPending ? "Saqlanmoqda..." : "Saqlash"}
+        {isPending ? dict.editDebt.saving : dict.editDebt.save}
       </button>
     </div>
   );

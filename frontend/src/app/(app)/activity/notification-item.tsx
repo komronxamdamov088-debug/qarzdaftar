@@ -2,13 +2,16 @@
 
 import { useTransition } from "react";
 import { formatDate } from "@/lib/format";
+import { DEFAULT_LOCALE, type Locale } from "@/i18n/locale";
 import type { AppNotification } from "@/lib/types";
 import { markNotificationReadAction } from "./actions";
 
 export function NotificationItem({
   notification,
+  locale = DEFAULT_LOCALE,
 }: {
   notification: AppNotification;
+  locale?: Locale;
 }) {
   const [isPending, startTransition] = useTransition();
 
@@ -39,7 +42,7 @@ export function NotificationItem({
         </span>
       )}
       <span className="text-xs text-muted-foreground">
-        {formatDate(notification.created_at)}
+        {formatDate(notification.created_at, locale)}
       </span>
     </button>
   );

@@ -4,6 +4,8 @@ import { getServerToken } from "@/lib/session";
 import type { AppNotification } from "@/lib/types";
 import { SignInRequired } from "@/components/sign-in-required";
 import { ErrorState } from "@/components/error-state";
+import { getLocale } from "@/i18n/get-locale";
+import { getDictionary } from "@/i18n/dictionaries";
 import { NotificationItem } from "./notification-item";
 
 async function loadNotifications(
@@ -24,6 +26,8 @@ async function loadNotifications(
 }
 
 export default async function ActivityPage() {
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
   const token = await getServerToken();
   if (!token) {
     return <SignInRequired />;
@@ -38,10 +42,10 @@ export default async function ActivityPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-4 px-4 py-6">
-      <h1 className="text-xl font-semibold">Faoliyat</h1>
+      <h1 className="text-xl font-semibold">{dict.activity.title}</h1>
       {notifications.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">
-          Hozircha bildirishnomalar yo&apos;q.
+          {dict.activity.empty}
         </p>
       ) : (
         <div className="flex flex-col gap-2">
@@ -49,6 +53,7 @@ export default async function ActivityPage() {
             <NotificationItem
               key={notification.id}
               notification={notification}
+              locale={locale}
             />
           ))}
         </div>

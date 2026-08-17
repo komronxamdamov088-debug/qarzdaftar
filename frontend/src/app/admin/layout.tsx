@@ -4,18 +4,16 @@ import { getCurrentUser } from "@/lib/debts-api";
 import { getServerToken } from "@/lib/session";
 import { SignInRequired } from "@/components/sign-in-required";
 import { ErrorState } from "@/components/error-state";
-
-const NAV_ITEMS = [
-  { href: "/admin", label: "Boshqaruv paneli" },
-  { href: "/admin/users", label: "Foydalanuvchilar" },
-  { href: "/admin/reports", label: "Hisobotlar" },
-];
+import { getLocale } from "@/i18n/get-locale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
   const token = await getServerToken();
   if (!token) {
     return <SignInRequired />;
@@ -38,21 +36,29 @@ export default async function AdminLayout({
   if (user.role !== "admin") {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
-        <h2 className="text-lg font-semibold">Ruxsat yo&apos;q</h2>
+        <h2 className="text-lg font-semibold">
+          {dict.admin.accessDeniedTitle}
+        </h2>
         <p className="max-w-sm text-sm text-muted-foreground">
-          Bu bo&apos;lim faqat administratorlar uchun.
+          {dict.admin.accessDeniedDescription}
         </p>
       </div>
     );
   }
 
+  const navItems = [
+    { href: "/admin", label: dict.admin.nav.dashboard },
+    { href: "/admin/users", label: dict.admin.nav.users },
+    { href: "/admin/reports", label: dict.admin.nav.reports },
+  ];
+
   return (
     <div className="flex min-h-full flex-1 flex-col bg-background">
       <header className="border-b border-black/5 bg-card px-6 py-4">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4">
-          <span className="text-lg font-semibold">QarzDaftar Admin</span>
+          <span className="text-lg font-semibold">{dict.admin.brand}</span>
           <nav className="flex items-center gap-4 text-sm">
-            {NAV_ITEMS.map((item) => (
+            {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -65,7 +71,7 @@ export default async function AdminLayout({
               href="/profile"
               className="text-muted-foreground hover:text-foreground"
             >
-              Profil
+              {dict.admin.nav.profile}
             </Link>
           </nav>
         </div>

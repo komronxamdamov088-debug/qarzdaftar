@@ -1,6 +1,8 @@
 import { ApiError } from "@/lib/api";
 import { getDebt } from "@/lib/debts-api";
 import { getServerToken } from "@/lib/session";
+import { getLocale } from "@/i18n/get-locale";
+import { getDictionary } from "@/i18n/dictionaries";
 import type { Debt } from "@/lib/types";
 import { SignInRequired } from "@/components/sign-in-required";
 import { ErrorState } from "@/components/error-state";
@@ -25,6 +27,7 @@ export default async function EditDebtPage(
   props: PageProps<"/debts/[id]/edit">,
 ) {
   const { id } = await props.params;
+  const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
     return <SignInRequired />;
@@ -35,7 +38,7 @@ export default async function EditDebtPage(
     return result.unauthorized ? (
       <SignInRequired />
     ) : (
-      <ErrorState message="Qarzni yuklab bo'lmadi." />
+      <ErrorState message={dict.editDebt.loadError} />
     );
   }
 

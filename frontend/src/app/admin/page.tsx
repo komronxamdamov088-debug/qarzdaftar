@@ -3,6 +3,8 @@ import { getServerToken } from "@/lib/session";
 import type { AdminStats } from "@/lib/types";
 import { ErrorState } from "@/components/error-state";
 import { AdminStatTile } from "@/components/admin-stat-tile";
+import { getLocale } from "@/i18n/get-locale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 async function loadStats(
   token: string,
@@ -16,9 +18,11 @@ async function loadStats(
 }
 
 export default async function AdminDashboardPage() {
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
   const token = await getServerToken();
   if (!token) {
-    return <ErrorState message="Tizimga kirish talab qilinadi." />;
+    return <ErrorState message={dict.admin.signInRequired} />;
   }
 
   const result = await loadStats(token);
@@ -27,34 +31,56 @@ export default async function AdminDashboardPage() {
   }
 
   const { stats } = result;
+  const { tiles } = dict.admin;
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">Boshqaruv paneli</h1>
+      <h1 className="text-xl font-semibold">{dict.admin.dashboardTitle}</h1>
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <AdminStatTile label="Jami foydalanuvchilar" value={stats.totalUsers} />
         <AdminStatTile
-          label="Yangi foydalanuvchilar (7 kun)"
+          label={tiles.totalUsers}
+          value={stats.totalUsers}
+          locale={locale}
+        />
+        <AdminStatTile
+          label={tiles.newUsers}
           value={stats.newUsers}
+          locale={locale}
         />
         <AdminStatTile
-          label="Faol foydalanuvchilar (30 kun)"
+          label={tiles.activeUsers}
           value={stats.activeUsers}
+          locale={locale}
         />
-        <AdminStatTile label="Jami qarzlar" value={stats.totalDebts} />
-        <AdminStatTile label="To'langan qarzlar" value={stats.paidDebts} />
         <AdminStatTile
-          label="Muddati o'tgan qarzlar"
+          label={tiles.totalDebts}
+          value={stats.totalDebts}
+          locale={locale}
+        />
+        <AdminStatTile
+          label={tiles.paidDebts}
+          value={stats.paidDebts}
+          locale={locale}
+        />
+        <AdminStatTile
+          label={tiles.overdueDebts}
           value={stats.overdueDebts}
+          locale={locale}
         />
         <AdminStatTile
-          label="AI eslatma ishlatilishi"
+          label={tiles.aiReminderUsage}
           value={stats.aiReminderUsage}
+          locale={locale}
         />
-        <AdminStatTile label="Push obunalari" value={stats.pushSubscriptions} />
         <AdminStatTile
-          label="Telegram ulangan foydalanuvchilar"
+          label={tiles.pushSubscriptions}
+          value={stats.pushSubscriptions}
+          locale={locale}
+        />
+        <AdminStatTile
+          label={tiles.telegramConnectedUsers}
           value={stats.telegramConnectedUsers}
+          locale={locale}
         />
       </section>
     </div>

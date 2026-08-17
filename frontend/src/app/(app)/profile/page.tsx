@@ -5,7 +5,10 @@ import { getServerToken } from "@/lib/session";
 import type { CurrentUser } from "@/lib/types";
 import { SignInRequired } from "@/components/sign-in-required";
 import { ErrorState } from "@/components/error-state";
+import { getLocale } from "@/i18n/get-locale";
+import { getDictionary } from "@/i18n/dictionaries";
 import { NotificationSettings } from "./notification-settings";
+import { LanguageSwitcher } from "./language-switcher";
 
 async function loadUser(
   token: string,
@@ -22,6 +25,7 @@ async function loadUser(
 }
 
 export default async function ProfilePage() {
+  const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
     return <SignInRequired />;
@@ -47,7 +51,7 @@ export default async function ProfilePage() {
         href="/statistics"
         className="flex items-center justify-between rounded-xl bg-card px-4 py-3 text-sm font-medium shadow-sm"
       >
-        Statistika
+        {dict.profile.statistics}
         <span className="text-muted-foreground">→</span>
       </Link>
 
@@ -56,10 +60,14 @@ export default async function ProfilePage() {
           href="/admin"
           className="flex items-center justify-between rounded-xl bg-card px-4 py-3 text-sm font-medium shadow-sm"
         >
-          Admin panel
+          {dict.profile.adminPanel}
           <span className="text-muted-foreground">→</span>
         </Link>
       )}
+
+      <section className="rounded-xl bg-card px-4 py-4 shadow-sm">
+        <LanguageSwitcher />
+      </section>
 
       <NotificationSettings
         pushEnabled={user.push_enabled}

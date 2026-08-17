@@ -1,16 +1,22 @@
+import { getDictionary } from "@/i18n/dictionaries";
+import { DEFAULT_LOCALE, type Locale } from "@/i18n/locale";
 import { formatDate, formatSom } from "@/lib/format";
 import type { Payment } from "@/lib/types";
 
 export function PaymentList({
   payments,
   originalAmount,
+  locale = DEFAULT_LOCALE,
 }: {
   payments: Payment[];
   originalAmount: string;
+  locale?: Locale;
 }) {
+  const dict = getDictionary(locale);
+
   if (payments.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">Hali to&apos;lovlar yo&apos;q.</p>
+      <p className="text-sm text-muted-foreground">{dict.paymentList.empty}</p>
     );
   }
 
@@ -34,9 +40,11 @@ export function PaymentList({
             className="flex flex-col gap-1 rounded-lg bg-card px-3 py-2.5 shadow-sm"
           >
             <div className="flex items-center justify-between text-sm">
-              <span className="font-medium">{formatSom(payment.amount)}</span>
+              <span className="font-medium">
+                {formatSom(payment.amount, locale)}
+              </span>
               <span className="text-muted-foreground">
-                {formatDate(payment.paid_at)}
+                {formatDate(payment.paid_at, locale)}
               </span>
             </div>
             {payment.note && (

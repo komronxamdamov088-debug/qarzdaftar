@@ -43,11 +43,23 @@ export async function apiFetch<T>(
 }
 
 // NestJS's default exception filter responds with { statusCode, message, error };
-// this recovers that message for display instead of a generic fallback.
-export function extractApiErrorMessage(error: unknown, fallback: string): string {
+// user-facing exceptions (debts/payments/reminders) additionally set a stable
+// `code` (e.g. "DEBT_NOT_PAYABLE") so the frontend can render a localized
+// message instead of the backend's Uzbek-only `message` string.
+export function extractApiErrorMessage(
+  error: unknown,
+  fallback: string,
+  codeMessages?: Record<string, string>,
+): string {
   if (error instanceof ApiError) {
     try {
-      const parsed = JSON.parse(error.message) as { message?: string | string[] };
+      const parsed = JSON.parse(error.message) as {
+        message?: string | string[];
+        code?: string;
+      };
+      if (codeMessages && parsed.code && codeMessages[parsed.code]) {
+        return codeMessages[parsed.code];
+      }
       if (Array.isArray(parsed.message)) return parsed.message.join(", ");
       if (typeof parsed.message === "string") return parsed.message;
     } catch {

@@ -6,6 +6,8 @@ import { SignInRequired } from "@/components/sign-in-required";
 import { ErrorState } from "@/components/error-state";
 import { SummaryCard } from "@/components/summary-card";
 import { StatsProgressBar } from "@/components/stats-progress-bar";
+import { getLocale } from "@/i18n/get-locale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 async function loadStats(
   token: string,
@@ -22,6 +24,8 @@ async function loadStats(
 }
 
 export default async function StatisticsPage() {
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
   const token = await getServerToken();
   if (!token) {
     return <SignInRequired />;
@@ -37,47 +41,52 @@ export default async function StatisticsPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-6 px-4 py-6">
-      <h1 className="text-xl font-semibold">Statistika</h1>
+      <h1 className="text-xl font-semibold">{dict.statistics.title}</h1>
 
       {!hasActivity ? (
         <p className="text-sm text-muted-foreground">
-          Statistikangiz qarz qo&apos;shganingizdan keyin shu yerda paydo
-          bo&apos;ladi.
+          {dict.statistics.empty}
         </p>
       ) : (
         <>
           <section className="grid grid-cols-2 gap-3">
             <SummaryCard
-              label="Jami bergan"
+              label={dict.statistics.totalGiven}
               value={stats.totalGiven}
               tone="success"
+              locale={locale}
             />
             <SummaryCard
-              label="Jami olgan"
+              label={dict.statistics.totalTaken}
               value={stats.totalTaken}
               tone="danger"
+              locale={locale}
             />
             <SummaryCard
-              label="Qaytarilgan"
+              label={dict.statistics.totalRepaid}
               value={stats.totalRepaid}
               tone="primary"
+              locale={locale}
             />
             <SummaryCard
-              label="Qolgan"
+              label={dict.statistics.totalRemaining}
               value={stats.totalRemaining}
               tone="warning"
+              locale={locale}
             />
           </section>
 
           <SummaryCard
-            label="Muddati o'tgan"
+            label={dict.statistics.totalOverdue}
             value={stats.totalOverdue}
             tone="danger"
+            locale={locale}
           />
 
           <StatsProgressBar
             repaid={stats.totalRepaid}
             remaining={stats.totalRemaining}
+            locale={locale}
           />
         </>
       )}

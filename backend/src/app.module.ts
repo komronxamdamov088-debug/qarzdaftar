@@ -18,6 +18,8 @@ import { TelegramModule } from './telegram/telegram.module';
 import { AiModule } from './ai/ai.module';
 import { AdminModule } from './admin/admin.module';
 import { StatsModule } from './stats/stats.module';
+import { ReceiptsModule } from './receipts/receipts.module';
+import { PaymentProvidersModule } from './payment-providers/payment-providers.module';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
@@ -37,6 +39,8 @@ import { DatabaseModule } from './database/database.module';
     AiModule,
     AdminModule,
     StatsModule,
+    ReceiptsModule,
+    PaymentProvidersModule,
   ],
   controllers: [AppController],
   providers: [

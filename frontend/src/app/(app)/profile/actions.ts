@@ -8,6 +8,8 @@ import {
   updateNotificationPreferences,
 } from "@/lib/notifications-api";
 import { getServerToken } from "@/lib/session";
+import { getLocale } from "@/i18n/get-locale";
+import { getDictionary } from "@/i18n/dictionaries";
 import type {
   PushSubscriptionInput,
   UpdateNotificationPreferencesInput,
@@ -18,9 +20,10 @@ type ActionResult = { ok: true } | { ok: false; message: string };
 export async function subscribeToPushAction(
   input: PushSubscriptionInput,
 ): Promise<ActionResult> {
+  const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
-    return { ok: false, message: "Tizimga kirish talab qilinadi." };
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
   }
 
   try {
@@ -30,7 +33,8 @@ export async function subscribeToPushAction(
       ok: false,
       message: extractApiErrorMessage(
         error,
-        "Obuna bo'lishda xatolik yuz berdi.",
+        dict.apiErrors.GENERIC,
+        dict.apiErrors,
       ),
     };
   }
@@ -42,9 +46,10 @@ export async function subscribeToPushAction(
 export async function unsubscribeFromPushAction(
   endpoint: string,
 ): Promise<ActionResult> {
+  const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
-    return { ok: false, message: "Tizimga kirish talab qilinadi." };
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
   }
 
   try {
@@ -54,7 +59,8 @@ export async function unsubscribeFromPushAction(
       ok: false,
       message: extractApiErrorMessage(
         error,
-        "Obunani bekor qilishda xatolik yuz berdi.",
+        dict.apiErrors.GENERIC,
+        dict.apiErrors,
       ),
     };
   }
@@ -66,9 +72,10 @@ export async function unsubscribeFromPushAction(
 export async function updateNotificationPreferencesAction(
   input: UpdateNotificationPreferencesInput,
 ): Promise<ActionResult> {
+  const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
-    return { ok: false, message: "Tizimga kirish talab qilinadi." };
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
   }
 
   try {
@@ -76,7 +83,11 @@ export async function updateNotificationPreferencesAction(
   } catch (error) {
     return {
       ok: false,
-      message: extractApiErrorMessage(error, "Saqlashda xatolik yuz berdi."),
+      message: extractApiErrorMessage(
+        error,
+        dict.apiErrors.GENERIC,
+        dict.apiErrors,
+      ),
     };
   }
 

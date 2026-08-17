@@ -3,6 +3,8 @@
 
 export type UserRole = 'user' | 'admin';
 
+export type UserLocale = 'uz' | 'ru';
+
 export type DebtStatus =
   'pending' | 'confirmed' | 'partially_paid' | 'paid' | 'overdue' | 'cancelled';
 
@@ -20,6 +22,13 @@ export type ReminderStatus = 'pending' | 'sent' | 'failed' | 'cancelled';
 export type AiReminderTone =
   'dostona' | 'hurmatli' | 'qisqa' | 'rasmiy' | 'hazilomuz';
 
+export type PaymentProviderName = 'click' | 'payme' | 'qulay_pay';
+
+export type PaymentMethod = 'cash' | PaymentProviderName;
+
+export type PaymentTransactionStatus =
+  'pending' | 'success' | 'failed' | 'cancelled';
+
 export interface Database {
   public: {
     Tables: {
@@ -32,6 +41,7 @@ export interface Database {
           role: UserRole;
           push_enabled: boolean;
           telegram_enabled: boolean;
+          locale: UserLocale;
           created_at: string;
           updated_at: string;
         };
@@ -43,6 +53,7 @@ export interface Database {
           role?: UserRole;
           push_enabled?: boolean;
           telegram_enabled?: boolean;
+          locale?: UserLocale;
           created_at?: string;
           updated_at?: string;
         };
@@ -89,6 +100,10 @@ export interface Database {
           debt_id: string;
           amount: string;
           note: string | null;
+          user_id: string | null;
+          method: PaymentMethod;
+          provider_transaction_id: string | null;
+          payment_transaction_id: string | null;
           paid_at: string;
           created_at: string;
         };
@@ -97,10 +112,84 @@ export interface Database {
           debt_id: string;
           amount: number;
           note?: string | null;
+          user_id?: string | null;
+          method?: PaymentMethod;
+          provider_transaction_id?: string | null;
+          payment_transaction_id?: string | null;
           paid_at?: string;
           created_at?: string;
         };
         Update: Partial<Database['public']['Tables']['payments']['Insert']>;
+        Relationships: [];
+      };
+      payment_transactions: {
+        Row: {
+          id: string;
+          debt_id: string;
+          user_id: string;
+          provider: PaymentProviderName;
+          provider_transaction_id: string | null;
+          amount: string;
+          status: PaymentTransactionStatus;
+          checkout_url: string | null;
+          raw_webhook_payload: Record<string, unknown> | null;
+          error_message: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          debt_id: string;
+          user_id: string;
+          provider: PaymentProviderName;
+          provider_transaction_id?: string | null;
+          amount: number;
+          status?: PaymentTransactionStatus;
+          checkout_url?: string | null;
+          raw_webhook_payload?: Record<string, unknown> | null;
+          error_message?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Database['public']['Tables']['payment_transactions']['Insert']
+        >;
+        Relationships: [];
+      };
+      receipts: {
+        Row: {
+          id: string;
+          payment_id: string;
+          debt_id: string;
+          receipt_number: string;
+          payer_name: string;
+          recipient_name: string;
+          payment_amount: string;
+          debt_original_amount: string;
+          debt_paid_amount: string;
+          debt_remaining_amount: string;
+          method: PaymentMethod;
+          debt_status: DebtStatus;
+          locale: UserLocale;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          payment_id: string;
+          debt_id: string;
+          receipt_number?: string;
+          payer_name: string;
+          recipient_name: string;
+          payment_amount: number;
+          debt_original_amount: number;
+          debt_paid_amount: number;
+          debt_remaining_amount: number;
+          method: PaymentMethod;
+          debt_status: DebtStatus;
+          locale?: UserLocale;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['receipts']['Insert']>;
         Relationships: [];
       };
       reminders: {
@@ -220,6 +309,9 @@ export interface Database {
           p_user_id: string;
           p_amount: number;
           p_note: string | null;
+          p_method?: PaymentMethod;
+          p_provider_transaction_id?: string | null;
+          p_payment_transaction_id?: string | null;
         };
         Returns: Database['public']['Tables']['payments']['Row'];
       };

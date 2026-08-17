@@ -4,14 +4,17 @@ import { redirect } from "next/navigation";
 import { ApiError } from "@/lib/api";
 import { createDebt } from "@/lib/debts-api";
 import { getServerToken } from "@/lib/session";
+import { getLocale } from "@/i18n/get-locale";
+import { getDictionary } from "@/i18n/dictionaries";
 import type { CreateDebtInput } from "@/lib/types";
 
 export async function createDebtAction(
   input: CreateDebtInput,
 ): Promise<{ ok: false; message: string } | undefined> {
+  const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
-    return { ok: false, message: "Tizimga kirish talab qilinadi." };
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
   }
 
   let debtId: string;
@@ -21,8 +24,8 @@ export async function createDebtAction(
   } catch (error) {
     const message =
       error instanceof ApiError
-        ? "Qarzni saqlashda xatolik yuz berdi. Ma'lumotlarni tekshirib, qaytadan urinib ko'ring."
-        : "Kutilmagan xatolik yuz berdi.";
+        ? dict.newDebt.submitError
+        : dict.newDebt.unexpectedError;
     return { ok: false, message };
   }
 

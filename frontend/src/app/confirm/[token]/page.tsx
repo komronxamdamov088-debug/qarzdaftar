@@ -1,18 +1,27 @@
 import { ApiError } from "@/lib/api";
 import { getPublicDebt } from "@/lib/debts-api";
+import { listPublicReceipts } from "@/lib/payments-api";
 import { formatDate, formatSom } from "@/lib/format";
-import type { PublicDebtView } from "@/lib/types";
+import type { PublicDebtView, Receipt } from "@/lib/types";
 import { ErrorState } from "@/components/error-state";
+import { ReceiptList } from "@/components/receipt-list";
+import { getLocale } from "@/i18n/get-locale";
+import { getDictionary } from "@/i18n/dictionaries";
 import { ConfirmActions } from "./confirm-actions";
+import { PaymentButtons } from "./payment-buttons";
 
 async function loadPublicDebt(
   token: string,
 ): Promise<
-  { ok: true; debt: PublicDebtView } | { ok: false; notFound: boolean }
+  | { ok: true; debt: PublicDebtView; receipts: Receipt[] }
+  | { ok: false; notFound: boolean }
 > {
   try {
     const debt = await getPublicDebt(token);
-    return { ok: true, debt };
+    // Fetched separately so a receipts-endpoint failure never hides the
+    // debt itself behind a generic error — receipts are supplementary.
+    const receipts = await listPublicReceipts(token).catch(() => []);
+    return { ok: true, debt, receipts };
   } catch (error) {
     return {
       ok: false,
@@ -24,6 +33,8 @@ async function loadPublicDebt(
 export default async function ConfirmPage(
   props: PageProps<"/confirm/[token]">,
 ) {
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
   const { token } = await props.params;
   const result = await loadPublicDebt(token);
 
@@ -31,28 +42,28 @@ export default async function ConfirmPage(
     return (
       <main className="flex min-h-dvh flex-col items-center justify-center bg-background">
         <ErrorState
-          message={
-            result.notFound
-              ? "Havola yaroqsiz yoki muddati o'tgan."
-              : undefined
-          }
+          message={result.notFound ? dict.confirmPage.linkInvalid : undefined}
         />
       </main>
     );
   }
 
-  const { debt } = result;
+  const { debt, receipts } = result;
+  const isPayable = debt.status !== "paid" && debt.status !== "cancelled";
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-background px-6 text-center">
       <div className="flex flex-col gap-2">
         <h1 className="text-lg font-semibold">
-          {debt.lender.name} {debt.borrower.name}ga {formatSom(debt.amount)}{" "}
-          qarz berdi.
+          {dict.confirmPage.header(
+            debt.lender.name,
+            debt.borrower.name,
+            formatSom(debt.amount, locale),
+          )}
         </h1>
         {debt.due_date && (
           <p className="text-sm text-muted-foreground">
-            Qaytarish sanasi: {formatDate(debt.due_date)}
+            {dict.confirmPage.dueDate(formatDate(debt.due_date, locale))}
           </p>
         )}
         {debt.note && (
@@ -65,9 +76,19 @@ export default async function ConfirmPage(
         confirmationStatus={debt.confirmation_status}
       />
 
+      {isPayable && <PaymentButtons token={token} />}
+
+      {receipts.length > 0 && (
+        <div className="flex w-full max-w-xs flex-col gap-2 text-left">
+          <h2 className="text-sm font-medium text-muted-foreground">
+            {dict.receipts.title}
+          </h2>
+          <ReceiptList receipts={receipts} confirmationToken={token} locale={locale} />
+        </div>
+      )}
+
       <p className="max-w-xs text-xs text-muted-foreground">
-        Bu ikki tomon o&apos;rtasidagi raqamli yozuv. QarzDaftar buni
-        avtomatik yuridik shartnoma deb hisoblamaydi.
+        {dict.confirmPage.disclaimer}
       </p>
     </main>
   );
