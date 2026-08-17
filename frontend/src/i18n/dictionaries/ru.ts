@@ -306,11 +306,19 @@ const ruDictionary: Dictionary = {
     toggle: "Оплатить онлайн",
     title: "Выберите способ оплаты",
     redirecting: "Перенаправление...",
+    pay: "Оплатить",
     providers: {
       click: "Click",
       payme: "Payme",
       qulay_pay: "Qulay Pay",
     },
+    descriptions: {
+      click: "Быстрая оплата через Click",
+      payme: "Безопасная оплата через Payme",
+      qulay_pay: "Оплата через Qulay Pay",
+    },
+    pendingBanner:
+      "Ваш платёж проверяется. Статус обновится в течение нескольких минут.",
   },
   receipts: {
     title: "Чеки",

@@ -36,6 +36,7 @@ export default async function ConfirmPage(
   const locale = await getLocale();
   const dict = getDictionary(locale);
   const { token } = await props.params;
+  const { payment } = await props.searchParams;
   const result = await loadPublicDebt(token);
 
   if (!result.ok) {
@@ -53,6 +54,12 @@ export default async function ConfirmPage(
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-background px-6 text-center">
+      {payment === "pending" && (
+        <p className="w-full max-w-xs rounded-xl bg-warning/10 px-4 py-3 text-sm text-warning">
+          {dict.paymentButtons.pendingBanner}
+        </p>
+      )}
+
       <div className="flex flex-col gap-2">
         <h1 className="text-lg font-semibold">
           {dict.confirmPage.header(

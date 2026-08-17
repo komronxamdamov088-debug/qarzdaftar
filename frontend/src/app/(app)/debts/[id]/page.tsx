@@ -67,6 +67,7 @@ async function loadDebt(
 
 export default async function DebtDetailPage(props: PageProps<"/debts/[id]">) {
   const { id } = await props.params;
+  const { payment } = await props.searchParams;
   const locale = await getLocale();
   const dict = getDictionary(locale);
   const token = await getServerToken();
@@ -94,6 +95,12 @@ export default async function DebtDetailPage(props: PageProps<"/debts/[id]">) {
         <h1 className="text-xl font-semibold uppercase">{counterparty.name}</h1>
         <p className="mt-1 text-2xl font-bold">{formatSom(debt.amount, locale)}</p>
       </div>
+
+      {payment === "pending" && (
+        <p className="rounded-xl bg-warning/10 px-4 py-3 text-sm text-warning">
+          {dict.paymentButtons.pendingBanner}
+        </p>
+      )}
 
       <dl className="flex flex-col gap-3 rounded-xl bg-card px-4 py-4 text-sm shadow-sm">
         <div className="flex justify-between">

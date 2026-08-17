@@ -304,11 +304,19 @@ const uzDictionary = {
     toggle: "Onlayn to'lash",
     title: "To'lov usulini tanlang",
     redirecting: "Yo'naltirilmoqda...",
+    pay: "To'lash",
     providers: {
       click: "Click",
       payme: "Payme",
       qulay_pay: "Qulay Pay",
     },
+    descriptions: {
+      click: "Click orqali tezkor to'lov",
+      payme: "Payme orqali xavfsiz to'lov",
+      qulay_pay: "Qulay Pay orqali to'lov",
+    },
+    pendingBanner:
+      "To'lovingiz tekshirilmoqda. Holat bir necha daqiqada yangilanadi.",
   },
   receipts: {
     title: "Cheklar",

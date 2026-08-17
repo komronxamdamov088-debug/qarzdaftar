@@ -26,7 +26,11 @@ export class PaymentCheckoutController {
     @Param('provider') provider: string,
   ) {
     const debt = await this.debtsService.findOneForUser(user.id, debtId);
-    const returnUrl = `${this.frontendUrl()}/debts/${debt.id}`;
+    // `?payment=pending` is purely a UI hint for "you just came back from a
+    // checkout attempt" — the actual outcome is only ever decided by a
+    // verified webhook (PaymentTransactionsService.handleWebhook), never by
+    // this query param, so it can't be used to spoof a fake success state.
+    const returnUrl = `${this.frontendUrl()}/debts/${debt.id}?payment=pending`;
     return this.transactionsService.initiateCheckout(
       debt,
       provider,

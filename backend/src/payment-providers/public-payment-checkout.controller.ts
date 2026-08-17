@@ -23,7 +23,9 @@ export class PublicPaymentCheckoutController {
     @Param('provider') provider: string,
   ) {
     const debt = await this.debtsService.findByToken(token);
-    const returnUrl = `${this.frontendUrl()}/confirm/${token}`;
+    // See payment-checkout.controller.ts: `?payment=pending` is a UI hint
+    // only, never the source of truth for whether the payment succeeded.
+    const returnUrl = `${this.frontendUrl()}/confirm/${token}?payment=pending`;
     return this.transactionsService.initiateCheckout(
       debt,
       provider,
