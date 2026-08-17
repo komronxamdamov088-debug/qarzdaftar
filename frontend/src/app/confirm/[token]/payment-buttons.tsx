@@ -5,6 +5,7 @@ import { extractApiErrorMessage } from "@/lib/api";
 import { initiatePublicCheckout } from "@/lib/payments-api";
 import type { PaymentProviderName } from "@/lib/types";
 import { useTranslations } from "@/i18n/locale-context";
+import { PaymentProviderIcon } from "@/components/payment-provider-icon";
 
 const PROVIDERS: PaymentProviderName[] = ["click", "payme", "qulay_pay"];
 
@@ -67,8 +68,9 @@ export function PaymentButtons({ token }: { token: string }) {
             type="button"
             disabled={isPending}
             onClick={() => checkout(provider)}
-            className="rounded-full border border-black/10 px-3 py-1.5 text-xs font-medium disabled:opacity-60"
+            className="flex items-center gap-1.5 rounded-full border border-black/10 px-3 py-1.5 text-xs font-medium disabled:opacity-60"
           >
+            <PaymentProviderIcon provider={provider} />
             {pendingProvider === provider
               ? dict.paymentButtons.redirecting
               : dict.paymentButtons.providers[provider]}
