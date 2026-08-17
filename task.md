@@ -391,4 +391,24 @@ All Explore/Plan agents spawned during this session's planning phase (2 Explore 
 - **The app is live in production** (as of this Phase 10 session): backend on Render (`https://qarzdaftar-backend-kx8c.onrender.com`), frontend on Vercel (`https://qarzdaftar-tau.vercel.app`), a real Supabase project, a real Telegram bot (`@QarzDaftar_uzBot`), real VAPID/AI keys. Source lives at `github.com/komronxamdamov088-debug/qarzdaftar`. Every env var, key, and password was set by the user directly into `.env` files or hosting-provider dashboards — never pasted into this conversation; verification was done via `curl`/API calls that don't require seeing the secrets themselves.
 - What's *not* yet done: clicking through the actual product as a user would, in a real browser and inside an actual Telegram client (Phase 10 checklist item 9). Everything verified so far is via HTTP requests, not UI interaction.
 - Going forward: a code change isn't "done" until it's pushed (`git push`) — Render and Vercel both auto-deploy from the `main` branch on GitHub. Backend changes need `backend/.env`'s local values mirrored into Render's Environment tab if a *new* env var is introduced (existing ones sync automatically on redeploy).
+
+---
+
+## Session paused here — resume point for next session
+
+Everything through this point is pushed to `main` (last commit `d053edd`) and live/deployed, or (for Supabase migrations) applied directly to production — nothing from this session is sitting uncommitted. Confirmed via `git log`/`git status` at pause time.
+
+**What's fully done:** Phase 11 Stages 0–4 (i18n, payment-provider backend architecture for Click/Payme/Qulay Pay, receipts, and the frontend payment-method-picker UI with SVG icons/cards). Plus three production bugs found and fixed live this session (see their write-ups above under Stage 4 and the two "Critical/Follow-up bug" sections): the `LocaleProvider` RSC-boundary crash, the `record_payment` duplicate-overload ambiguity that broke every payment, and the Telegram Mini App receipt-PDF download using `WebApp.openLink()`.
+
+**What's next: Stage 5 — Telegram deep-linking + safe-area polish** (the only stage left in the Phase 11 plan; full detail in the "Telegram Mini App plan" sub-section above and in `/Users/komron/.claude/plans/binary-plotting-elephant.md`):
+1. `backend/src/telegram/telegram-init-data.ts` — surface `start_param` from `initData` (currently parsed but dropped).
+2. `frontend/src/types/telegram.d.ts` — add `initDataUnsafe.start_param`, `safeAreaInset`, `contentSafeAreaInset` typings; widen the `onEvent`/`offEvent` event-name union.
+3. `telegram-bootstrap.tsx` — route on `start_param` after login (`debt-<uuid>` → `/debts/<id>`, `pay-<uuid>` → `/debts/<id>?openPayment=1`).
+4. New `telegram-safe-area-sync.tsx` + `viewportFit: "cover"` in `layout.tsx`'s `Viewport` export + `env(safe-area-inset-*)` in `globals.css`.
+5. New `share-debt-link-button.tsx` — `Telegram.WebApp.openTelegramLink()` / `navigator.share()` / clipboard-copy fallback chain.
+
+**Also still outstanding, not urgent but don't forget:**
+- No real Click/Payme/Qulay Pay credentials exist yet — every provider button correctly shows "not configured" until the user supplies them (see the env var list in the "Payment plan" sub-section above).
+- A real authenticated click-through test (log in as a real user in a browser/Telegram client, add a cash payment, try a provider checkout, view a receipt) still hasn't been done — everything this session was verified via `curl`/live dev-server smoke tests, not by a human clicking through the UI. Worth doing early next session since two of today's three bugs (`record_payment` overload, Telegram PDF download) were only found because the *user* actually used the app — static/automated checks alone weren't enough.
+- `DATABASE_URL` is still documented but unused (pre-existing, not this session's concern).
 - Never create a separate Client Panel, never expose secrets via `NEXT_PUBLIC_*`, never fake functionality (disabled buttons with "Tez orada" instead of fake success).
