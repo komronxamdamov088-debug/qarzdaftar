@@ -28,6 +28,10 @@ export interface TelegramWebApp {
   expand: () => void;
   onEvent: (eventType: "themeChanged", callback: () => void) => void;
   offEvent: (eventType: "themeChanged", callback: () => void) => void;
+  // Opens a URL in the device's system/default browser rather than
+  // Telegram's own WebView — needed for anything a plain <a target="_blank">
+  // can't reliably do inside the Mini App sandbox (e.g. downloading a PDF).
+  openLink: (url: string, options?: { try_instant_view?: boolean }) => void;
 }
 
 declare global {

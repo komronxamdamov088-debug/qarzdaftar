@@ -3,6 +3,7 @@ import { DEFAULT_LOCALE, type Locale } from "@/i18n/locale";
 import { formatDate, formatSom } from "@/lib/format";
 import { receiptPdfUrl } from "@/lib/payments-api";
 import type { Receipt } from "@/lib/types";
+import { ReceiptPdfLink } from "./receipt-pdf-link";
 
 export function ReceiptList({
   receipts,
@@ -42,14 +43,10 @@ export function ReceiptList({
               {" · "}
               {dict.receipts.methodLabels[receipt.method]}
             </span>
-            <a
-              href={receiptPdfUrl(confirmationToken, receipt.id)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-primary"
-            >
-              {dict.receipts.downloadPdf}
-            </a>
+            <ReceiptPdfLink
+              url={receiptPdfUrl(confirmationToken, receipt.id)}
+              label={dict.receipts.downloadPdf}
+            />
           </div>
         </div>
       ))}
