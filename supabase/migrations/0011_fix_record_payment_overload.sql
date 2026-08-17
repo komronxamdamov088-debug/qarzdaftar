@@ -1,0 +1,26 @@
+-- Migration 0009 used `CREATE OR REPLACE FUNCTION record_payment(...)` with
+-- 3 new trailing parameters appended (p_method, p_provider_transaction_id,
+-- p_payment_transaction_id). Postgres identifies function overloads by
+-- their FULL declared parameter type list, so appending new parameters —
+-- even with defaults — does NOT replace a function with fewer declared
+-- parameters. It creates a SECOND overload alongside the original
+-- 4-parameter version from migration 0002, which was never dropped.
+--
+-- Every real call site (PaymentsService.create, the manual/cash payment
+-- flow) passes exactly the original 4 named parameters
+-- (p_debt_id, p_user_id, p_amount, p_note). With two overloads present,
+-- that call matches BOTH (the 7-parameter one via its defaults for the
+-- other 3), so PostgREST/Postgres can't resolve which one to call and
+-- raises "function record_payment(...) is not unique" — surfaced to users
+-- as a generic 500 error on every payment attempt (cash and provider both).
+--
+-- Confirmed live against production via `supabase db query --linked`:
+--   record_payment(p_debt_id uuid, p_user_id uuid, p_amount numeric, p_note text)
+--   record_payment(p_debt_id uuid, p_user_id uuid, p_amount numeric, p_note text,
+--                   p_method text, p_provider_transaction_id text,
+--                   p_payment_transaction_id uuid)
+-- both existed simultaneously. Dropping the old 4-parameter overload leaves
+-- only the 7-parameter version, which every existing call site already
+-- matches correctly via defaults for the 3 new trailing parameters.
+
+drop function if exists record_payment(uuid, uuid, numeric, text);
