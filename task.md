@@ -411,7 +411,7 @@ All Explore/Plan agents spawned during this session's planning phase (2 Explore 
 
 ## Session paused here — resume point for next session
 
-Phase 11 Stages 0–5 are **all code-complete** — the entire approved plan in `/Users/komron/.claude/plans/binary-plotting-elephant.md` has been built. Stages 0–4 (last commit `d053edd`) were pushed and are live in production. **Stage 5 (this session, see its section above) is done and verified (build/lint/test + live `next dev` smoke test) but is sitting uncommitted in the working tree as of writing this** — per this session's own standing lesson ("code changes in this repo are not live until pushed"), confirm with the user and `git push` before treating it as deployed. Check `git status` when resuming to see whether that already happened.
+Phase 11 Stages 0–5 are **all code-complete and pushed** — the entire approved plan in `/Users/komron/.claude/plans/binary-plotting-elephant.md` has been built. Stage 5 (this session) was committed and pushed as `d49de83` (`main`), following Stages 0–4 (`d053edd`). Render/Vercel auto-deploy from `main`, so this should already be live — worth a quick `curl` spot-check on resume to confirm the deploys succeeded, same as every prior push in this project.
 
 **What's fully done:** all of Phase 11 (i18n, payment-provider backend architecture for Click/Payme/Qulay Pay, receipts, payment-method-picker UI, and now Telegram deep-linking/safe-area/share). Plus production bugs found and fixed live in earlier sessions (see write-ups above under Stage 4 and the "Critical/Follow-up bug" sections): the `LocaleProvider` RSC-boundary crash, the `record_payment` duplicate-overload ambiguity that broke every payment, and the Telegram Mini App receipt-PDF download using `WebApp.openLink()`.
 
