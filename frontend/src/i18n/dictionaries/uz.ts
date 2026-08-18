@@ -117,6 +117,11 @@ const uzDictionary = {
     copy: "Havolani nusxalash",
     copied: "Nusxalandi",
   },
+  share: {
+    button: "Ulashish",
+    message: (name: string, amount: string) =>
+      `QarzDaftar: ${name} — ${amount}`,
+  },
   deleteDebt: {
     toggle: "O'chirish",
     cancel: "Bekor qilish",

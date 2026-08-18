@@ -5,8 +5,14 @@ import type { PaymentProviderName } from "@/lib/types";
 import { PaymentMethodPicker } from "@/components/payment-method-picker";
 import { initiateCheckoutAction } from "./actions";
 
-export function PaymentButtons({ debtId }: { debtId: string }) {
-  const [open, setOpen] = useState(false);
+export function PaymentButtons({
+  debtId,
+  defaultOpen = false,
+}: {
+  debtId: string;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [pendingProvider, setPendingProvider] =

@@ -17,21 +17,40 @@ export interface TelegramWebAppUser {
   language_code?: string;
 }
 
+export interface TelegramSafeAreaInset {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
+
+type TelegramWebAppEvent =
+  | "themeChanged"
+  | "viewportChanged"
+  | "safeAreaChanged"
+  | "contentSafeAreaChanged";
+
 export interface TelegramWebApp {
   initData: string;
   initDataUnsafe: {
     user?: TelegramWebAppUser;
+    start_param?: string;
   };
   colorScheme: "light" | "dark";
   themeParams: TelegramThemeParams;
+  safeAreaInset: TelegramSafeAreaInset;
+  contentSafeAreaInset: TelegramSafeAreaInset;
   ready: () => void;
   expand: () => void;
-  onEvent: (eventType: "themeChanged", callback: () => void) => void;
-  offEvent: (eventType: "themeChanged", callback: () => void) => void;
+  onEvent: (eventType: TelegramWebAppEvent, callback: () => void) => void;
+  offEvent: (eventType: TelegramWebAppEvent, callback: () => void) => void;
   // Opens a URL in the device's system/default browser rather than
   // Telegram's own WebView — needed for anything a plain <a target="_blank">
   // can't reliably do inside the Mini App sandbox (e.g. downloading a PDF).
   openLink: (url: string, options?: { try_instant_view?: boolean }) => void;
+  // Opens a t.me link (e.g. the share-to-chat dialog) inside Telegram itself,
+  // as opposed to openLink's system-browser behavior.
+  openTelegramLink: (url: string) => void;
 }
 
 declare global {

@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import { TelegramThemeSync } from "@/components/telegram-theme-sync";
+import { TelegramSafeAreaSync } from "@/components/telegram-safe-area-sync";
 import { getLocale } from "@/i18n/get-locale";
 import { LocaleProvider } from "@/i18n/locale-context";
 
@@ -25,6 +26,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#2563EB",
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
@@ -39,6 +41,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         />
         <ServiceWorkerRegistration />
         <TelegramThemeSync />
+        <TelegramSafeAreaSync />
         <LocaleProvider locale={locale}>
           {children}
         </LocaleProvider>

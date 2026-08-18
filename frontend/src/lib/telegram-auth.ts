@@ -10,9 +10,12 @@ import { getDictionary } from "@/i18n/dictionaries";
 interface TelegramAuthResult {
   accessToken: string;
   user: { id: string; name: string; role: string; locale?: string };
+  startParam?: string;
 }
 
-type ActionResult = { ok: true } | { ok: false; message: string };
+type ActionResult =
+  | { ok: true; startParam?: string }
+  | { ok: false; message: string };
 
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
@@ -45,7 +48,7 @@ export async function loginWithTelegramAction(
       });
     }
 
-    return { ok: true };
+    return { ok: true, startParam: result.startParam };
   } catch (error) {
     const dict = getDictionary(await getLocale());
     return {

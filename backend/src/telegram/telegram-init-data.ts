@@ -11,6 +11,7 @@ export interface TelegramWebAppUser {
 export interface VerifiedTelegramInitData {
   user: TelegramWebAppUser;
   authDate: number;
+  startParam?: string;
 }
 
 const MAX_AUTH_AGE_SECONDS = 24 * 60 * 60;
@@ -65,5 +66,7 @@ export function verifyTelegramInitData(
     throw new Error('INVALID_USER_PAYLOAD');
   }
 
-  return { user, authDate };
+  const startParam = params.get('start_param') ?? undefined;
+
+  return { user, authDate, startParam };
 }

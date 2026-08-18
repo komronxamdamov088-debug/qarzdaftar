@@ -16,6 +16,7 @@ export interface AuthResult {
     role: string;
     locale: string;
   };
+  startParam?: string;
 }
 
 @Injectable()
@@ -38,7 +39,7 @@ export class AuthService {
       );
     }
 
-    const { user: tgUser } = verified;
+    const { user: tgUser, startParam } = verified;
     const name = [tgUser.first_name, tgUser.last_name]
       .filter(Boolean)
       .join(' ');
@@ -60,6 +61,7 @@ export class AuthService {
         role: user.role,
         locale: user.locale,
       },
+      startParam,
     };
   }
 }

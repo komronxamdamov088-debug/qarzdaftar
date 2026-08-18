@@ -17,7 +17,7 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="sticky bottom-0 z-10 border-t border-black/5 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 pb-[max(0px,env(safe-area-inset-bottom))]">
+    <nav className="sticky bottom-0 z-10 border-t border-black/5 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 pb-[max(0px,env(safe-area-inset-bottom),var(--tg-safe-area-bottom))]">
       <ul className="mx-auto flex max-w-lg items-center justify-between px-4 py-2">
         {navItems.map((item) => {
           const active = pathname === item.href;

@@ -119,6 +119,11 @@ const ruDictionary: Dictionary = {
     copy: "Скопировать ссылку",
     copied: "Скопировано",
   },
+  share: {
+    button: "Поделиться",
+    message: (name: string, amount: string) =>
+      `QarzDaftar: ${name} — ${amount}`,
+  },
   deleteDebt: {
     toggle: "Удалить",
     cancel: "Отмена",

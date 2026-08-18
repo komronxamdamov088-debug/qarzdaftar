@@ -24,6 +24,7 @@ import { DeleteDebtButton } from "./delete-debt-button";
 import { AddPaymentForm } from "./add-payment-form";
 import { PaymentList } from "./payment-list";
 import { CopyLinkButton } from "./copy-link-button";
+import { ShareDebtLinkButton } from "@/components/share-debt-link-button";
 import { ReminderPicker } from "./reminder-picker";
 import { AiReminderPicker } from "./ai-reminder-picker";
 import { PaymentButtons } from "./payment-buttons";
@@ -67,7 +68,7 @@ async function loadDebt(
 
 export default async function DebtDetailPage(props: PageProps<"/debts/[id]">) {
   const { id } = await props.params;
-  const { payment } = await props.searchParams;
+  const { payment, openPayment } = await props.searchParams;
   const locale = await getLocale();
   const dict = getDictionary(locale);
   const token = await getServerToken();
@@ -159,9 +160,18 @@ export default async function DebtDetailPage(props: PageProps<"/debts/[id]">) {
             <span className="truncate text-xs text-muted-foreground">
               {`${process.env.NEXT_PUBLIC_APP_URL ?? ""}/confirm/${debt.confirmation_token}`}
             </span>
-            <CopyLinkButton
-              url={`${process.env.NEXT_PUBLIC_APP_URL ?? ""}/confirm/${debt.confirmation_token}`}
-            />
+            <div className="flex shrink-0 gap-2">
+              <CopyLinkButton
+                url={`${process.env.NEXT_PUBLIC_APP_URL ?? ""}/confirm/${debt.confirmation_token}`}
+              />
+              <ShareDebtLinkButton
+                url={`${process.env.NEXT_PUBLIC_APP_URL ?? ""}/confirm/${debt.confirmation_token}`}
+                text={dict.share.message(
+                  counterparty.name,
+                  formatSom(debt.amount, locale),
+                )}
+              />
+            </div>
           </div>
         </section>
       )}
@@ -199,7 +209,9 @@ export default async function DebtDetailPage(props: PageProps<"/debts/[id]">) {
         />
       </div>
 
-      {isPayable && <PaymentButtons debtId={debt.id} />}
+      {isPayable && (
+        <PaymentButtons debtId={debt.id} defaultOpen={openPayment === "1"} />
+      )}
 
       <AiReminderPicker debtId={debt.id} />
 
