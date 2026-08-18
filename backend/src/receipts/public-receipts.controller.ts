@@ -1,4 +1,4 @@
-import { Controller, Get, Header, Param } from '@nestjs/common';
+import { Controller, Get, Param, StreamableFile } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator';
 import { ReceiptsService } from './receipts.service';
 
@@ -21,15 +21,19 @@ export class PublicReceiptsController {
     return this.receiptsService.findOneByToken(token, id);
   }
 
+  // See receipts.controller.ts's downloadPdf for why this must be a
+  // StreamableFile and not a raw Buffer.
   @Public()
   @Get(':id/pdf')
-  @Header('Content-Type', 'application/pdf')
   async downloadPdf(
     @Param('token') token: string,
     @Param('id') id: string,
-  ): Promise<Buffer> {
+  ): Promise<StreamableFile> {
     const receipt = await this.receiptsService.findOneByToken(token, id);
     const pdf = await this.receiptsService.generatePdf(receipt);
-    return Buffer.from(pdf);
+    return new StreamableFile(pdf, {
+      type: 'application/pdf',
+      disposition: `attachment; filename="${receipt.receipt_number}.pdf"`,
+    });
   }
 }

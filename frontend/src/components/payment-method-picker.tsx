@@ -4,7 +4,7 @@ import type { PaymentProviderName } from "@/lib/types";
 import { useTranslations } from "@/i18n/locale-context";
 import { PaymentProviderIcon } from "./payment-provider-icon";
 
-const PROVIDERS: PaymentProviderName[] = ["click", "payme", "qulay_pay"];
+const PROVIDERS: PaymentProviderName[] = ["click", "payme", "yagona_pay"];
 
 // Shared presentational picker used by both payment-buttons.tsx variants
 // (authenticated debt page + public confirmation link) — the two callers

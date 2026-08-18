@@ -24,6 +24,7 @@ export abstract class BasePaymentProvider implements PaymentProvider {
   protected abstract doBuildErrorResponse(
     code: string,
     message: string,
+    event?: ParsedWebhookEvent,
   ): unknown;
 
   buildCheckoutUrl(request: CheckoutRequest): string {
@@ -46,9 +47,13 @@ export abstract class BasePaymentProvider implements PaymentProvider {
     return this.doBuildSuccessResponse(event);
   }
 
-  buildErrorResponse(code: string, message: string): unknown {
+  buildErrorResponse(
+    code: string,
+    message: string,
+    event?: ParsedWebhookEvent,
+  ): unknown {
     this.assertConfigured();
-    return this.doBuildErrorResponse(code, message);
+    return this.doBuildErrorResponse(code, message, event);
   }
 
   protected assertConfigured(): void {

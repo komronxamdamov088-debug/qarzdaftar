@@ -100,7 +100,7 @@ export interface UpdateNotificationPreferencesInput {
   telegramEnabled?: boolean;
 }
 
-export type PaymentProviderName = "click" | "payme" | "qulay_pay";
+export type PaymentProviderName = "click" | "payme" | "yagona_pay";
 
 export type PaymentMethod = "cash" | PaymentProviderName;
 

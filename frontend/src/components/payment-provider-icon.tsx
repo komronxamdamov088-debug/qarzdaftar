@@ -3,7 +3,7 @@ import type { PaymentProviderName } from "@/lib/types";
 // Brand-toned SVG marks — one consistent visual metaphor per provider,
 // rendered at identical size/stroke-weight so the three read as one family.
 // These are original glyphs (cursor / card+check / wallet), not a
-// reproduction of Click's, Payme's, or Qulay Pay's actual trademarked
+// reproduction of Click's, Payme's, or Yagona Pay's actual trademarked
 // logos — we don't have licensed brand assets, and precisely recreating a
 // registered mark isn't something to do without permission. Colors are
 // tuned close to each brand's real palette so the icon still reads as
@@ -11,7 +11,7 @@ import type { PaymentProviderName } from "@/lib/types";
 const PROVIDER_STYLE: Record<PaymentProviderName, { background: string }> = {
   click: { background: "#0079FF" },
   payme: { background: "#00C4B3" },
-  qulay_pay: { background: "#FF7A1A" },
+  yagona_pay: { background: "#FF7A1A" },
 };
 
 function ClickGlyph() {
@@ -53,7 +53,7 @@ function PaymeGlyph() {
   );
 }
 
-function QulayPayGlyph() {
+function YagonaPayGlyph() {
   return (
     <>
       <path
@@ -72,7 +72,7 @@ function QulayPayGlyph() {
 const GLYPHS: Record<PaymentProviderName, () => React.JSX.Element> = {
   click: ClickGlyph,
   payme: PaymeGlyph,
-  qulay_pay: QulayPayGlyph,
+  yagona_pay: YagonaPayGlyph,
 };
 
 export function PaymentProviderIcon({

@@ -89,11 +89,20 @@ export class PaymentTransactionsService {
 
     const event = provider.parseWebhook(request);
 
-    const { data: transaction, error } = await this.supabase
-      .from('payment_transactions')
-      .select('*')
-      .eq('id', event.transactionId)
-      .maybeSingle();
+    // Some gateway calls (Payme's PerformTransaction/CancelTransaction)
+    // only carry the gateway's OWN transaction id, never ours — fall back
+    // to looking our row up by provider_transaction_id in that case.
+    const { data: transaction, error } = event.transactionId
+      ? await this.supabase
+          .from('payment_transactions')
+          .select('*')
+          .eq('id', event.transactionId)
+          .maybeSingle()
+      : await this.supabase
+          .from('payment_transactions')
+          .select('*')
+          .eq('provider_transaction_id', event.providerTransactionId)
+          .maybeSingle();
 
     if (error) {
       throw new InternalServerErrorException(error.message);
@@ -102,13 +111,116 @@ export class PaymentTransactionsService {
       return provider.buildErrorResponse(
         'TRANSACTION_NOT_FOUND',
         'Tranzaksiya topilmadi',
+        event,
       );
     }
+
+    // Backfill so every response built from here on has our real id and
+    // stable, replay-safe timestamps, regardless of which fields this
+    // particular call happened to carry.
+    event.transactionId = transaction.id;
+    event.transactionTimestamps = {
+      createdAtMs: new Date(transaction.created_at).getTime(),
+      updatedAtMs: new Date(transaction.updated_at).getTime(),
+    };
+
+    // Read-only precondition check (Payme CheckPerformTransaction) — never
+    // writes anything.
+    if (event.phase === 'check') {
+      if (event.status !== 'success' || transaction.status !== 'pending') {
+        return provider.buildErrorResponse(
+          'PAYMENT_FAILED',
+          "To'lov muvaffaqiyatsiz",
+          event,
+        );
+      }
+      if (Math.abs(event.amount - Number(transaction.amount)) > 0.01) {
+        return provider.buildErrorResponse(
+          'AMOUNT_MISMATCH',
+          'Summa mos kelmadi',
+          event,
+        );
+      }
+      return provider.buildSuccessResponse(event);
+    }
+
+    // Acknowledges the gateway's own transaction id against our pending
+    // row without moving money yet (Click Prepare / Payme
+    // CreateTransaction).
+    if (event.phase === 'create') {
+      if (event.status !== 'success') {
+        return provider.buildErrorResponse(
+          'PAYMENT_FAILED',
+          "To'lov muvaffaqiyatsiz",
+          event,
+        );
+      }
+      if (transaction.status !== 'pending') {
+        // Idempotent replay against an already-decided transaction: just
+        // re-acknowledge with the original timestamps, never re-decide.
+        return provider.buildSuccessResponse(event);
+      }
+      if (Math.abs(event.amount - Number(transaction.amount)) > 0.01) {
+        return provider.buildErrorResponse(
+          'AMOUNT_MISMATCH',
+          'Summa mos kelmadi',
+          event,
+        );
+      }
+      if (!transaction.provider_transaction_id) {
+        await this.supabase
+          .from('payment_transactions')
+          .update({ provider_transaction_id: event.providerTransactionId })
+          .eq('id', transaction.id);
+      }
+      return provider.buildSuccessResponse(event);
+    }
+
+    // The gateway cancels a transaction before/without it ever completing
+    // (Payme CancelTransaction).
+    if (event.phase === 'cancel') {
+      if (transaction.status === 'success') {
+        // A cancel/refund request against an already-completed payment
+        // isn't supported yet — never silently "succeed" at undoing money
+        // that's already been recorded against the debt.
+        return provider.buildErrorResponse(
+          'CANCEL_AFTER_COMPLETE_UNSUPPORTED',
+          "To'langan tranzaksiyani bekor qilish hozircha qo'llab-quvvatlanmaydi",
+          event,
+        );
+      }
+      if (transaction.status !== 'cancelled') {
+        await this.supabase
+          .from('payment_transactions')
+          .update({
+            status: 'cancelled',
+            provider_transaction_id: event.providerTransactionId,
+            raw_webhook_payload: event.rawPayload,
+          })
+          .eq('id', transaction.id);
+      }
+      return provider.buildSuccessResponse(event);
+    }
+
+    // Terminal phase (Click Complete / Payme PerformTransaction / Yagona
+    // Pay's single-phase webhook) — the only phase that ever applies money.
 
     // Idempotent: a replayed/retried webhook for an already-applied
     // transaction is a no-op, never applied twice.
     if (transaction.status === 'success') {
       return provider.buildSuccessResponse(event);
+    }
+    // Already decided the other way (failed/cancelled) — a late or
+    // duplicate terminal call must never revive it and apply money. Found
+    // live: a cancelled Payme transaction replaying PerformTransaction
+    // fell through into the apply-payment path below unguarded before this
+    // check existed.
+    if (transaction.status !== 'pending') {
+      return provider.buildErrorResponse(
+        'PAYMENT_FAILED',
+        "To'lov muvaffaqiyatsiz",
+        event,
+      );
     }
 
     if (event.status !== 'success') {
@@ -123,12 +235,21 @@ export class PaymentTransactionsService {
       return provider.buildErrorResponse(
         'PAYMENT_FAILED',
         "To'lov muvaffaqiyatsiz",
+        event,
       );
     }
 
     // The webhook's reported amount is never authoritative on its own — it
-    // must match what we recorded at checkout time.
-    if (Math.abs(event.amount - Number(transaction.amount)) > 0.01) {
+    // must match what we recorded at checkout time. Some gateways' terminal
+    // call carries no amount at all (Payme's PerformTransaction only sends
+    // `{id}` — the amount was already verified during CheckPerformTransaction/
+    // CreateTransaction, both of which do carry it and run this same check
+    // via the 'check'/'create' branches above), so event.amount is 0 in
+    // that case and there is nothing new to cross-check here.
+    if (
+      event.amount > 0 &&
+      Math.abs(event.amount - Number(transaction.amount)) > 0.01
+    ) {
       await this.supabase
         .from('payment_transactions')
         .update({
@@ -140,6 +261,7 @@ export class PaymentTransactionsService {
       return provider.buildErrorResponse(
         'AMOUNT_MISMATCH',
         'Summa mos kelmadi',
+        event,
       );
     }
 

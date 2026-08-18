@@ -313,12 +313,12 @@ const uzDictionary = {
     providers: {
       click: "Click",
       payme: "Payme",
-      qulay_pay: "Qulay Pay",
+      yagona_pay: "Yagona Pay",
     },
     descriptions: {
       click: "Click orqali tezkor to'lov",
       payme: "Payme orqali xavfsiz to'lov",
-      qulay_pay: "Qulay Pay orqali to'lov",
+      yagona_pay: "Yagona Pay orqali to'lov",
     },
     pendingBanner:
       "To'lovingiz tekshirilmoqda. Holat bir necha daqiqada yangilanadi.",
@@ -332,7 +332,7 @@ const uzDictionary = {
       cash: "Naqd",
       click: "Click",
       payme: "Payme",
-      qulay_pay: "Qulay Pay",
+      yagona_pay: "Yagona Pay",
     },
   },
   apiErrors: {

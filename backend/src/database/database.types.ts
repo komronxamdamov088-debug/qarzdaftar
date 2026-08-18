@@ -22,7 +22,7 @@ export type ReminderStatus = 'pending' | 'sent' | 'failed' | 'cancelled';
 export type AiReminderTone =
   'dostona' | 'hurmatli' | 'qisqa' | 'rasmiy' | 'hazilomuz';
 
-export type PaymentProviderName = 'click' | 'payme' | 'qulay_pay';
+export type PaymentProviderName = 'click' | 'payme' | 'yagona_pay';
 
 export type PaymentMethod = 'cash' | PaymentProviderName;
 

@@ -9,24 +9,24 @@ import {
 } from '../interfaces/payment-provider.interface';
 import { BasePaymentProvider } from './base-payment-provider';
 
-// TODO(qulay-pay): Qulay Pay is a smaller, less-documented aggregator than
+// TODO(yagona-pay): Yagona Pay is a smaller, less-documented aggregator than
 // Click/Payme. The field names/signature scheme below (HMAC-SHA256 over the
-// raw webhook body, hex-encoded, in an `X-Qulay-Signature` header) are
+// raw webhook body, hex-encoded, in an `X-Yagona-Signature` header) are
 // PROVISIONAL — built against the same PaymentProvider interface as the
 // other two gateways so the rest of the system (checkout endpoint, webhook
 // controller, idempotency, PaymentTransactionsService) doesn't need to know
-// the difference, but every detail here must be verified against Qulay
+// the difference, but every detail here must be verified against Yagona
 // Pay's real integration docs once a merchant account exists.
-interface QulayPayWebhookBody {
-  transaction_id: string; // Qulay Pay's own id
+interface YagonaPayWebhookBody {
+  transaction_id: string; // Yagona Pay's own id
   merchant_transaction_id: string; // our transactionId
   amount: number; // som
   status: string;
 }
 
 @Injectable()
-export class QulayPayProvider extends BasePaymentProvider {
-  readonly name: PaymentProviderName = 'qulay_pay';
+export class YagonaPayProvider extends BasePaymentProvider {
+  readonly name: PaymentProviderName = 'yagona_pay';
 
   constructor(private readonly config: ConfigService) {
     super();
@@ -34,16 +34,16 @@ export class QulayPayProvider extends BasePaymentProvider {
 
   isConfigured(): boolean {
     return Boolean(
-      this.config.get<string>('QULAY_PAY_MERCHANT_ID') &&
-      this.config.get<string>('QULAY_PAY_SECRET_KEY') &&
-      this.config.get<string>('QULAY_PAY_CHECKOUT_BASE_URL') &&
-      this.config.get<string>('QULAY_PAY_API_BASE_URL'),
+      this.config.get<string>('YAGONA_PAY_MERCHANT_ID') &&
+      this.config.get<string>('YAGONA_PAY_SECRET_KEY') &&
+      this.config.get<string>('YAGONA_PAY_CHECKOUT_BASE_URL') &&
+      this.config.get<string>('YAGONA_PAY_API_BASE_URL'),
     );
   }
 
   protected doBuildCheckoutUrl(request: CheckoutRequest): string {
-    const baseUrl = this.config.get<string>('QULAY_PAY_CHECKOUT_BASE_URL')!;
-    const merchantId = this.config.get<string>('QULAY_PAY_MERCHANT_ID')!;
+    const baseUrl = this.config.get<string>('YAGONA_PAY_CHECKOUT_BASE_URL')!;
+    const merchantId = this.config.get<string>('YAGONA_PAY_MERCHANT_ID')!;
 
     const url = new URL(baseUrl);
     url.searchParams.set('merchant_id', merchantId);
@@ -54,13 +54,13 @@ export class QulayPayProvider extends BasePaymentProvider {
   }
 
   protected doVerifySignature(request: RawWebhookRequest): boolean {
-    const provided = request.headers['x-qulay-signature'];
+    const provided = request.headers['x-yagona-signature'];
     const signature = Array.isArray(provided) ? provided[0] : provided;
     if (!signature) {
       return false;
     }
 
-    const secretKey = this.config.get<string>('QULAY_PAY_SECRET_KEY')!;
+    const secretKey = this.config.get<string>('YAGONA_PAY_SECRET_KEY')!;
     const expected = createHmac('sha256', secretKey)
       .update(request.rawBody)
       .digest('hex');
@@ -74,7 +74,7 @@ export class QulayPayProvider extends BasePaymentProvider {
   }
 
   protected doParseWebhook(request: RawWebhookRequest): ParsedWebhookEvent {
-    const body = request.body as QulayPayWebhookBody;
+    const body = request.body as YagonaPayWebhookBody;
     return {
       transactionId: body.merchant_transaction_id,
       providerTransactionId: body.transaction_id,

@@ -315,12 +315,12 @@ const ruDictionary: Dictionary = {
     providers: {
       click: "Click",
       payme: "Payme",
-      qulay_pay: "Qulay Pay",
+      yagona_pay: "Yagona Pay",
     },
     descriptions: {
       click: "Быстрая оплата через Click",
       payme: "Безопасная оплата через Payme",
-      qulay_pay: "Оплата через Qulay Pay",
+      yagona_pay: "Оплата через Yagona Pay",
     },
     pendingBanner:
       "Ваш платёж проверяется. Статус обновится в течение нескольких минут.",
@@ -334,7 +334,7 @@ const ruDictionary: Dictionary = {
       cash: "Наличные",
       click: "Click",
       payme: "Payme",
-      qulay_pay: "Qulay Pay",
+      yagona_pay: "Yagona Pay",
     },
   },
   apiErrors: {

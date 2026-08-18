@@ -3,12 +3,12 @@ import { PaymentProviderName } from '../database/database.types';
 import { PaymentProvider } from './interfaces/payment-provider.interface';
 import { ClickProvider } from './providers/click.provider';
 import { PaymeProvider } from './providers/payme.provider';
-import { QulayPayProvider } from './providers/qulay-pay.provider';
+import { YagonaPayProvider } from './providers/yagona-pay.provider';
 
 const VALID_PROVIDER_NAMES: PaymentProviderName[] = [
   'click',
   'payme',
-  'qulay_pay',
+  'yagona_pay',
 ];
 
 @Injectable()
@@ -18,13 +18,13 @@ export class PaymentProvidersService {
   constructor(
     click: ClickProvider,
     payme: PaymeProvider,
-    qulayPay: QulayPayProvider,
+    yagonaPay: YagonaPayProvider,
   ) {
-    this.providers = { click, payme, qulay_pay: qulayPay };
+    this.providers = { click, payme, yagona_pay: yagonaPay };
   }
 
-  // Accepts kebab-case route params too ("qulay-pay") and normalizes them to
-  // the snake_case value stored in the database/enum ("qulay_pay").
+  // Accepts kebab-case route params too ("yagona-pay") and normalizes them
+  // to the snake_case value stored in the database/enum ("yagona_pay").
   getProvider(name: string): PaymentProvider {
     const normalized = name.replace(/-/g, '_');
     if (!this.isValidProviderName(normalized)) {
