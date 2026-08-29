@@ -215,6 +215,7 @@ export interface AdminUserSummary {
   phone: string | null;
   role: "user" | "admin";
   telegramConnected: boolean;
+  telegramUsername: string | null;
   createdAt: string;
   accountType: AccountType;
   businessName: string | null;

@@ -115,18 +115,35 @@ export class AdminService {
     };
   }
 
-  async listUsers(): Promise<AdminUserSummary[]> {
+  // Defaults to business accounts only — the admin's day-to-day use of this
+  // list is monitoring shops, not scrolling through every personal debt user
+  // (of which there can be many). `search` (by name/phone) drops the
+  // accountType filter so a personal account can still be found and
+  // converted via the "do'konga aylantirish" action.
+  async listUsers(filter?: {
+    accountType?: AccountType;
+    search?: string;
+  }): Promise<AdminUserSummary[]> {
+    let query = this.supabase
+      .from('users')
+      .select(
+        'id, name, phone, role, account_type, business_name, subscription_active, created_at',
+      )
+      .order('created_at', { ascending: false });
+
+    const search = filter?.search?.trim().replace(/[,()%]/g, '');
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,phone.ilike.%${search}%`);
+    } else if (filter?.accountType) {
+      query = query.eq('account_type', filter.accountType);
+    }
+
     const [
       { data: users, error: usersError },
       { data: connections, error: connectionsError },
     ] = await Promise.all([
-      this.supabase
-        .from('users')
-        .select(
-          'id, name, phone, role, account_type, business_name, subscription_active, created_at',
-        )
-        .order('created_at', { ascending: false }),
-      this.supabase.from('telegram_connections').select('user_id'),
+      query,
+      this.supabase.from('telegram_connections').select('user_id, username'),
     ]);
 
     if (usersError) {
@@ -136,14 +153,17 @@ export class AdminService {
       throw new InternalServerErrorException(connectionsError.message);
     }
 
-    const connectedUserIds = new Set((connections ?? []).map((c) => c.user_id));
+    const usernameByUserId = new Map(
+      (connections ?? []).map((c) => [c.user_id, c.username]),
+    );
 
     return (users ?? []).map((user) => ({
       id: user.id,
       name: user.name,
       phone: user.phone,
       role: user.role,
-      telegramConnected: connectedUserIds.has(user.id),
+      telegramConnected: usernameByUserId.has(user.id),
+      telegramUsername: usernameByUserId.get(user.id) ?? null,
       createdAt: user.created_at,
       accountType: user.account_type,
       businessName: user.business_name,
@@ -307,10 +327,11 @@ export class AdminService {
     subscription_active: boolean;
     created_at: string;
   }): Promise<AdminUserSummary> {
-    const { count, error } = await this.supabase
+    const { data: connection, error } = await this.supabase
       .from('telegram_connections')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id);
+      .select('username')
+      .eq('user_id', user.id)
+      .maybeSingle();
 
     if (error) {
       throw new InternalServerErrorException(error.message);
@@ -321,7 +342,8 @@ export class AdminService {
       name: user.name,
       phone: user.phone,
       role: user.role,
-      telegramConnected: (count ?? 0) > 0,
+      telegramConnected: Boolean(connection),
+      telegramUsername: connection?.username ?? null,
       createdAt: user.created_at,
       accountType: user.account_type,
       businessName: user.business_name,

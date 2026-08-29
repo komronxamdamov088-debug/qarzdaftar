@@ -59,6 +59,14 @@ export function updateUserLocale(token: string, locale: "uz" | "ru") {
   });
 }
 
+export function updateUserPhone(token: string, phone: string) {
+  return apiFetch<CurrentUser>("/users/me/phone", {
+    method: "PATCH",
+    body: { phone },
+    token,
+  });
+}
+
 export function getStats(token: string) {
   return apiFetch<UserStats>("/stats", { token });
 }

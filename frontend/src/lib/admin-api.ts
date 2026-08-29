@@ -5,8 +5,18 @@ export function getAdminStats(token: string) {
   return apiFetch<AdminStats>("/admin/stats", { token });
 }
 
-export function listAdminUsers(token: string) {
-  return apiFetch<AdminUserSummary[]>("/admin/users", { token });
+export function listAdminUsers(
+  token: string,
+  filter?: { accountType?: "personal" | "business"; search?: string },
+) {
+  const params = new URLSearchParams();
+  if (filter?.accountType) params.set("accountType", filter.accountType);
+  if (filter?.search) params.set("search", filter.search);
+  const query = params.toString();
+  return apiFetch<AdminUserSummary[]>(
+    `/admin/users${query ? `?${query}` : ""}`,
+    { token },
+  );
 }
 
 export function updateAdminUserRole(

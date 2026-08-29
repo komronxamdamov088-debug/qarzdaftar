@@ -4,6 +4,7 @@ import type { AuthenticatedUser } from '../auth/types/authenticated-user.interfa
 import { UsersService } from './users.service';
 import { UpdateNotificationPreferencesDto } from './dto/update-notification-preferences.dto';
 import { UpdateLocaleDto } from './dto/update-locale.dto';
+import { UpdatePhoneDto } from './dto/update-phone.dto';
 
 @Controller('users')
 export class UsersController {
@@ -28,5 +29,13 @@ export class UsersController {
     @Body() dto: UpdateLocaleDto,
   ) {
     return this.usersService.updateLocale(user.id, dto);
+  }
+
+  @Patch('me/phone')
+  updatePhone(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdatePhoneDto,
+  ) {
+    return this.usersService.updatePhone(user.id, dto);
   }
 }

@@ -9,6 +9,7 @@ import { getLocale } from "@/i18n/get-locale";
 import { getDictionary } from "@/i18n/dictionaries";
 import { NotificationSettings } from "./notification-settings";
 import { LanguageSwitcher } from "./language-switcher";
+import { PhoneEditor } from "./phone-editor";
 
 async function loadUser(
   token: string,
@@ -42,9 +43,7 @@ export default async function ProfilePage() {
     <main className="flex flex-1 flex-col gap-6 px-4 py-6">
       <div>
         <h1 className="text-xl font-semibold">{user.name}</h1>
-        {user.phone && (
-          <p className="text-sm text-muted-foreground">{user.phone}</p>
-        )}
+        <PhoneEditor phone={user.phone} />
       </div>
 
       <Link

@@ -10,6 +10,7 @@ import {
 import { getServerToken } from "@/lib/session";
 import { getLocale } from "@/i18n/get-locale";
 import { getDictionary } from "@/i18n/dictionaries";
+import { updateUserPhone } from "@/lib/debts-api";
 import type {
   PushSubscriptionInput,
   UpdateNotificationPreferencesInput,
@@ -54,6 +55,32 @@ export async function unsubscribeFromPushAction(
 
   try {
     await unsubscribeFromPush(token, endpoint);
+  } catch (error) {
+    return {
+      ok: false,
+      message: extractApiErrorMessage(
+        error,
+        dict.apiErrors.GENERIC,
+        dict.apiErrors,
+      ),
+    };
+  }
+
+  revalidatePath("/profile");
+  return { ok: true };
+}
+
+export async function updatePhoneAction(
+  phone: string,
+): Promise<ActionResult> {
+  const dict = getDictionary(await getLocale());
+  const token = await getServerToken();
+  if (!token) {
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
+  }
+
+  try {
+    await updateUserPhone(token, phone);
   } catch (error) {
     return {
       ok: false,

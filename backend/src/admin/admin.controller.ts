@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.interface';
@@ -6,6 +6,7 @@ import { AdminService } from './admin.service';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { ConvertToBusinessDto } from './dto/convert-to-business.dto';
 import { UpdateSubscriptionStatusDto } from './dto/update-subscription-status.dto';
+import { ListUsersQueryDto } from './dto/list-users-query.dto';
 
 // RolesGuard is registered globally (see app.module.ts) and reads this
 // class-level @Roles('admin'), so every route below requires role='admin' —
@@ -21,8 +22,8 @@ export class AdminController {
   }
 
   @Get('users')
-  listUsers() {
-    return this.adminService.listUsers();
+  listUsers(@Query() query: ListUsersQueryDto) {
+    return this.adminService.listUsers(query);
   }
 
   @Patch('users/:id/role')

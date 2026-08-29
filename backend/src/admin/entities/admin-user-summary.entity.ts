@@ -8,6 +8,7 @@ export interface AdminUserSummary {
   phone: string | null;
   role: UserRole;
   telegramConnected: boolean;
+  telegramUsername: string | null;
   createdAt: string;
   accountType: AccountType;
   businessName: string | null;

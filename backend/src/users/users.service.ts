@@ -9,6 +9,7 @@ import type { SupabaseClient } from '../database/supabase.provider';
 import { User } from './entities/user.entity';
 import { UpdateNotificationPreferencesDto } from './dto/update-notification-preferences.dto';
 import { UpdateLocaleDto } from './dto/update-locale.dto';
+import { UpdatePhoneDto } from './dto/update-phone.dto';
 
 @Injectable()
 export class UsersService {
@@ -87,6 +88,24 @@ export class UsersService {
     const { data, error } = await this.supabase
       .from('users')
       .update({ locale: dto.locale })
+      .eq('id', userId)
+      .select('*')
+      .single();
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    return data;
+  }
+
+  // Telegram login never collects a phone number on its own — this lets a
+  // business account share one explicitly (e.g. via Telegram's own
+  // requestContact() prompt on the frontend) so the admin can see it in
+  // /admin/users without needing a separate outreach channel.
+  async updatePhone(userId: string, dto: UpdatePhoneDto): Promise<User> {
+    const { data, error } = await this.supabase
+      .from('users')
+      .update({ phone: dto.phone })
       .eq('id', userId)
       .select('*')
       .single();
