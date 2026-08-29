@@ -607,3 +607,14 @@ User tried the new "Narx/chegirmani tahrirlash" form on a real business account 
 - Backend `build`+`lint`+`test` and frontend `build`+`lint` clean; live `next dev` sweep of `/admin/users` still `200`.
 - No database cleanup needed — the failed save never committed (Postgres rejected the write outright), so the account's `subscription_price`/`subscription_discount_percent` were left at their prior values, not corrupted.
 - **Pushed to production** as commit `fa8f3a2` — Render/Vercel auto-deploy from `main`.
+
+### Follow-up (same day): dashboard promo banner so shops actually notice an active discount
+
+User feedback: the discount was only visible if a shop owner thought to open their profile — asked for it to "stay visible" with a nicer UI specifically around the promotion itself.
+
+- New `frontend/src/components/subscription-promo-banner.tsx` — async Server Component (reads its own locale/dict, same pattern as `sign-in-required.tsx`/`error-state.tsx`), renders **nothing** unless `account_type === "business"` **and** `subscription_discount_percent > 0` (a 0% discount isn't a promotion). Shows a `-X%` badge circle in warning-tint colors, the original price struck through next to the discounted price, matching the CLAUDE.md design system's warning color (`#F59E0B`) rather than introducing a new accent.
+- Mounted on `app/(app)/dashboard/page.tsx` — the page shops actually land on — in both the empty-state and normal-state layouts, right below the greeting header (above the summary tiles), so it's the first thing a shop with an active discount sees on every visit, not something they have to go looking for in their profile.
+- `app/(app)/profile/page.tsx`'s existing subscription card also restyled to match: the previously separate "Chegirma"/"Joriy narx" rows collapsed into one row (struck-through original price + bold discounted price) with a `-X%` pill badge next to the card title, consistent with the new dashboard banner instead of a plain 4-row `<dl>`.
+- New dict keys: top-level `promoBanner.{title,perMonth}` in both `uz.ts`/`ru.ts`.
+- Frontend `npm run build` + `npm run lint` clean; live `next dev` sweep of `/dashboard`/`/profile` both `200`, no dev-log errors (anonymous visitor only — no session, so the actual banner-rendering branch itself wasn't visually exercised, same standing gap as everything else business-account-related this session).
+- **Pushed to production** as commit `<fill in after commit>` — Render/Vercel auto-deploy from `main`.

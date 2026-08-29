@@ -34,6 +34,10 @@ const uzDictionary = {
     description:
       "Hisobingiz uchun oylik obuna hozircha faol emas. Ilovadan foydalanishni davom ettirish uchun administrator bilan bog'laning.",
   },
+  promoBanner: {
+    title: "Sizga aksiya taqdim etildi",
+    perMonth: "/oyiga",
+  },
   home: {
     heroLine1: "Qarz unutilmaydi.",
     heroLine2: "Munosabat buzilmaydi.",

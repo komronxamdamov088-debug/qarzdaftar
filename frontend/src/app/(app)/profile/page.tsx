@@ -71,29 +71,31 @@ export default async function ProfilePage() {
 
       {user.account_type === "business" && (
         <section className="rounded-xl bg-card px-4 py-4 shadow-sm">
-          <h2 className="mb-3 text-sm font-semibold">
-            {dict.profile.subscription.title}
-          </h2>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold">
+              {dict.profile.subscription.title}
+            </h2>
+            {discountPercent > 0 && (
+              <span className="rounded-full bg-warning/15 px-2.5 py-1 text-xs font-semibold text-warning">
+                -{discountPercent}%
+              </span>
+            )}
+          </div>
           <dl className="flex flex-col gap-2 text-sm">
             <div className="flex items-center justify-between">
               <dt className="text-muted-foreground">
                 {dict.profile.subscription.price}
               </dt>
-              <dd>{formatSom(user.subscription_price, locale)}</dd>
-            </div>
-            {discountPercent > 0 && (
-              <div className="flex items-center justify-between">
-                <dt className="text-muted-foreground">
-                  {dict.profile.subscription.discount}
-                </dt>
-                <dd>{discountPercent}%</dd>
-              </div>
-            )}
-            <div className="flex items-center justify-between font-medium">
-              <dt className="text-muted-foreground font-normal">
-                {dict.profile.subscription.effectivePrice}
-              </dt>
-              <dd>{formatSom(effectivePrice, locale)}</dd>
+              <dd className="flex items-baseline gap-2">
+                {discountPercent > 0 && (
+                  <span className="text-xs text-muted-foreground line-through">
+                    {formatSom(user.subscription_price, locale)}
+                  </span>
+                )}
+                <span className="font-semibold">
+                  {formatSom(effectivePrice, locale)}
+                </span>
+              </dd>
             </div>
             <div className="flex items-center justify-between">
               <dt className="text-muted-foreground">

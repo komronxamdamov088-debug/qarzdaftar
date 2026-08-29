@@ -8,6 +8,7 @@ import { DebtCard } from "@/components/debt-card";
 import { SummaryCard } from "@/components/summary-card";
 import { SignInRequired } from "@/components/sign-in-required";
 import { ErrorState } from "@/components/error-state";
+import { SubscriptionPromoBanner } from "@/components/subscription-promo-banner";
 import { getLocale } from "@/i18n/get-locale";
 import { getDictionary } from "@/i18n/dictionaries";
 
@@ -48,17 +49,22 @@ export default async function DashboardPage() {
 
   if (debts.length === 0) {
     return (
-      <main className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
-        <h1 className="text-xl font-semibold">{dict.dashboard.emptyTitle}</h1>
-        <p className="max-w-sm text-sm text-muted-foreground">
-          {dict.dashboard.emptyDescription}
-        </p>
-        <Link
-          href="/debts/new"
-          className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white"
-        >
-          {dict.dashboard.emptyCta}
-        </Link>
+      <main className="flex flex-1 flex-col gap-6 px-4 py-6">
+        <SubscriptionPromoBanner user={user} />
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-2 text-center">
+          <h1 className="text-xl font-semibold">
+            {dict.dashboard.emptyTitle}
+          </h1>
+          <p className="max-w-sm text-sm text-muted-foreground">
+            {dict.dashboard.emptyDescription}
+          </p>
+          <Link
+            href="/debts/new"
+            className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white"
+          >
+            {dict.dashboard.emptyCta}
+          </Link>
+        </div>
       </main>
     );
   }
@@ -85,6 +91,8 @@ export default async function DashboardPage() {
           {dict.dashboard.addDebt}
         </Link>
       </div>
+
+      <SubscriptionPromoBanner user={user} />
 
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <SummaryCard
