@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginWithTelegramAction } from "@/lib/telegram-auth";
 
@@ -25,6 +25,7 @@ function routeForStartParam(startParam: string | undefined): string {
 export function TelegramBootstrap() {
   const router = useRouter();
   const attempted = useRef(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
@@ -36,9 +37,23 @@ export function TelegramBootstrap() {
     loginWithTelegramAction(webApp.initData).then((result) => {
       if (result.ok) {
         router.replace(routeForStartParam(result.startParam));
+      } else {
+        setError(result.message);
       }
     });
   }, [router]);
 
-  return null;
+  // Login failures were previously silent (this component always returned
+  // null), leaving the user stuck on the static hero with no explanation —
+  // a violation of CLAUDE.md section 41/42 ("every action should have
+  // feedback"). Surfacing the real message here also makes production
+  // login failures diagnosable without server log access.
+  if (!error) {
+    return null;
+  }
+  return (
+    <p className="max-w-sm rounded-lg bg-danger/10 px-4 py-3 text-sm text-danger">
+      {error}
+    </p>
+  );
 }
