@@ -259,6 +259,35 @@ export class AdminService {
     return this.toUserSummary(data);
   }
 
+  // The inverse of convertToBusiness — resets every subscription-related
+  // field back to its default so a re-converted account later doesn't
+  // inherit stale pricing/discount/valid-until data from a previous stint
+  // as a business account.
+  async revertToPersonal(targetUserId: string): Promise<AdminUserSummary> {
+    const { data, error } = await this.supabase
+      .from('users')
+      .update({
+        account_type: 'personal',
+        business_name: null,
+        subscription_active: true,
+        subscription_price: 0,
+        subscription_discount_percent: 0,
+        subscription_valid_until: null,
+      })
+      .eq('id', targetUserId)
+      .select(USER_SUMMARY_COLUMNS)
+      .maybeSingle();
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!data) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+
+    return this.toUserSummary(data);
+  }
+
   // Flips subscription_active only — see JwtStrategy for how a deactivated
   // business account is immediately locked out of every authenticated route,
   // not just on its next login.

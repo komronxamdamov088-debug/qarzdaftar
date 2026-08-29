@@ -5,6 +5,7 @@ import { extractApiErrorMessage } from "@/lib/api";
 import {
   addAdminUserSubscriptionBonus,
   convertAdminUserToBusiness,
+  revertAdminUserToPersonal,
   updateAdminUserRole,
   updateAdminUserSubscriptionPricing,
   updateAdminUserSubscriptionStatus,
@@ -79,6 +80,32 @@ export async function updateSubscriptionStatusAction(
 
   try {
     await updateAdminUserSubscriptionStatus(token, userId, active);
+  } catch (error) {
+    return {
+      ok: false,
+      message: extractApiErrorMessage(
+        error,
+        dict.admin.businessUpdateError,
+        dict.apiErrors,
+      ),
+    };
+  }
+
+  revalidatePath("/admin/users");
+  return { ok: true };
+}
+
+export async function revertToPersonalAction(
+  userId: string,
+): Promise<{ ok: false; message: string } | { ok: true }> {
+  const dict = getDictionary(await getLocale());
+  const token = await getServerToken();
+  if (!token) {
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
+  }
+
+  try {
+    await revertAdminUserToPersonal(token, userId);
   } catch (error) {
     return {
       ok: false,

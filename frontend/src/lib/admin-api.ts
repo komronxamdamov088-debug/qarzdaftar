@@ -70,6 +70,13 @@ export function updateAdminUserSubscriptionPricing(
   );
 }
 
+export function revertAdminUserToPersonal(token: string, userId: string) {
+  return apiFetch<AdminUserSummary>(`/admin/users/${userId}/personal`, {
+    method: "PATCH",
+    token,
+  });
+}
+
 export function addAdminUserSubscriptionBonus(
   token: string,
   userId: string,

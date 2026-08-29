@@ -323,6 +323,8 @@ const uzDictionary = {
     subscriptionPricingInvalid:
       "Narx manfiy bo'lmagan raqam, chegirma esa 0 dan 100 gacha bo'lishi kerak.",
     subscriptionBonusDaysInvalid: "Kunlar soni musbat butun son bo'lishi kerak.",
+    revertToPersonal: "Shaxsiy hisobga qaytarish",
+    confirmRevertToPersonal: "Tasdiqlash",
   },
   debtStatus: {
     pending: "Kutilmoqda",

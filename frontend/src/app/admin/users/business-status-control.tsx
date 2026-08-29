@@ -8,6 +8,7 @@ import type { Locale } from "@/i18n/locale";
 import {
   addSubscriptionBonusAction,
   convertToBusinessAction,
+  revertToPersonalAction,
   updateSubscriptionPricingAction,
   updateSubscriptionStatusAction,
 } from "./actions";
@@ -28,6 +29,7 @@ export function BusinessStatusControl({
   const [price, setPrice] = useState(user.subscriptionPrice);
   const [discount, setDiscount] = useState(user.subscriptionDiscountPercent);
   const [bonusDays, setBonusDays] = useState("30");
+  const [confirmingRevert, setConfirmingRevert] = useState(false);
 
   function convert() {
     const trimmed = name.trim();
@@ -84,6 +86,16 @@ export function BusinessStatusControl({
         return;
       }
       setEditingPricing(false);
+    });
+  }
+
+  function revertToPersonal() {
+    setError(null);
+    startTransition(async () => {
+      const result = await revertToPersonalAction(user.id);
+      if (!result.ok) {
+        setError(result.message);
+      }
     });
   }
 
@@ -200,6 +212,35 @@ export function BusinessStatusControl({
             {dict.admin.addSubscriptionBonusDays}
           </button>
         </div>
+
+        {confirmingRevert ? (
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={revertToPersonal}
+              disabled={isPending}
+              className="rounded-full bg-danger px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+            >
+              {dict.admin.confirmRevertToPersonal}
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmingRevert(false)}
+              disabled={isPending}
+              className="rounded-full border border-black/10 px-3 py-1.5 text-xs font-medium"
+            >
+              {dict.common.cancel}
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setConfirmingRevert(true)}
+            className="text-xs text-danger underline underline-offset-2"
+          >
+            {dict.admin.revertToPersonal}
+          </button>
+        )}
 
         {error && <p className="text-xs text-danger">{error}</p>}
       </div>

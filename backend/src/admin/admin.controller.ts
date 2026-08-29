@@ -53,6 +53,11 @@ export class AdminController {
     return this.adminService.convertToBusiness(id, dto.businessName);
   }
 
+  @Patch('users/:id/personal')
+  revertToPersonal(@Param('id') id: string) {
+    return this.adminService.revertToPersonal(id);
+  }
+
   @Patch('users/:id/subscription')
   updateSubscriptionStatus(
     @Param('id') id: string,

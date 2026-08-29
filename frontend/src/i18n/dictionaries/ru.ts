@@ -325,6 +325,8 @@ const ruDictionary: Dictionary = {
     subscriptionPricingInvalid:
       "Цена должна быть неотрицательным числом, а скидка — от 0 до 100.",
     subscriptionBonusDaysInvalid: "Количество дней должно быть положительным целым числом.",
+    revertToPersonal: "Вернуть в личный аккаунт",
+    confirmRevertToPersonal: "Подтвердить",
   },
   debtStatus: {
     pending: "Ожидается",
