@@ -318,6 +318,9 @@ const ruDictionary: Dictionary = {
     subscriptionDiscountPlaceholder: "Скидка (%)",
     editSubscriptionPricing: "Изменить цену/скидку",
     addSubscriptionBonusDays: "Добавить бонусные дни",
+    subscriptionPricingInvalid:
+      "Цена должна быть неотрицательным числом, а скидка — от 0 до 100.",
+    subscriptionBonusDaysInvalid: "Количество дней должно быть положительным целым числом.",
   },
   debtStatus: {
     pending: "Ожидается",

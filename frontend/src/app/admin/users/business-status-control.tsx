@@ -57,11 +57,27 @@ export function BusinessStatusControl({
   }
 
   function savePricing() {
+    const parsedPrice = price.trim() === "" ? undefined : Number(price);
+    const parsedDiscount =
+      discount.trim() === "" ? undefined : Number(discount);
+    const priceInvalid =
+      parsedPrice !== undefined &&
+      (!Number.isFinite(parsedPrice) || parsedPrice < 0);
+    const discountInvalid =
+      parsedDiscount !== undefined &&
+      (!Number.isFinite(parsedDiscount) ||
+        parsedDiscount < 0 ||
+        parsedDiscount > 100);
+    if (priceInvalid || discountInvalid) {
+      setError(dict.admin.subscriptionPricingInvalid);
+      return;
+    }
+
     setError(null);
     startTransition(async () => {
       const result = await updateSubscriptionPricingAction(user.id, {
-        price: price.trim() === "" ? undefined : Number(price),
-        discountPercent: discount.trim() === "" ? undefined : Number(discount),
+        price: parsedPrice,
+        discountPercent: parsedDiscount,
       });
       if (!result.ok) {
         setError(result.message);
@@ -73,7 +89,10 @@ export function BusinessStatusControl({
 
   function addBonus() {
     const days = Number(bonusDays);
-    if (!Number.isInteger(days) || days <= 0) return;
+    if (!Number.isInteger(days) || days <= 0) {
+      setError(dict.admin.subscriptionBonusDaysInvalid);
+      return;
+    }
     setError(null);
     startTransition(async () => {
       const result = await addSubscriptionBonusAction(user.id, days);
@@ -116,17 +135,22 @@ export function BusinessStatusControl({
         {editingPricing ? (
           <div className="flex flex-col items-end gap-1">
             <input
+              type="number"
+              min={0}
+              step="any"
               value={price}
               onChange={(event) => setPrice(event.target.value)}
               placeholder={dict.admin.subscriptionPricePlaceholder}
-              inputMode="decimal"
               className="w-36 rounded-lg border border-black/10 px-2 py-1.5 text-xs"
             />
             <input
+              type="number"
+              min={0}
+              max={100}
+              step="any"
               value={discount}
               onChange={(event) => setDiscount(event.target.value)}
               placeholder={dict.admin.subscriptionDiscountPlaceholder}
-              inputMode="decimal"
               className="w-36 rounded-lg border border-black/10 px-2 py-1.5 text-xs"
             />
             <div className="flex gap-1">
@@ -160,9 +184,11 @@ export function BusinessStatusControl({
 
         <div className="flex items-center gap-1">
           <input
+            type="number"
+            min={1}
+            step={1}
             value={bonusDays}
             onChange={(event) => setBonusDays(event.target.value)}
-            inputMode="numeric"
             className="w-14 rounded-lg border border-black/10 px-2 py-1.5 text-xs"
           />
           <button

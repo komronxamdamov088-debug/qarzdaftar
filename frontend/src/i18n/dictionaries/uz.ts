@@ -316,6 +316,9 @@ const uzDictionary = {
     subscriptionDiscountPlaceholder: "Chegirma (%)",
     editSubscriptionPricing: "Narx/chegirmani tahrirlash",
     addSubscriptionBonusDays: "Bonus kun qo'shish",
+    subscriptionPricingInvalid:
+      "Narx manfiy bo'lmagan raqam, chegirma esa 0 dan 100 gacha bo'lishi kerak.",
+    subscriptionBonusDaysInvalid: "Kunlar soni musbat butun son bo'lishi kerak.",
   },
   debtStatus: {
     pending: "Kutilmoqda",
