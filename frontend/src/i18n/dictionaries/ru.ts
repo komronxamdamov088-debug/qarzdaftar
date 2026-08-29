@@ -31,6 +31,11 @@ const ruDictionary: Dictionary = {
     description:
       "Чтобы увидеть эту страницу, сначала войдите в аккаунт. Вход по телефону/OTP и через Telegram скоро будет доступен.",
   },
+  subscriptionInactive: {
+    title: "Подписка неактивна",
+    description:
+      "Ежемесячная подписка для вашего аккаунта сейчас неактивна. Чтобы продолжить пользоваться приложением, свяжитесь с администратором.",
+  },
   home: {
     heroLine1: "Долг не забудется.",
     heroLine2: "Отношения не испортятся.",
@@ -273,15 +278,23 @@ const ruDictionary: Dictionary = {
     tableName: "Имя",
     tablePhone: "Телефон",
     tableRole: "Роль",
+    tableAccountType: "Тип аккаунта",
     tableTelegram: "Telegram",
     tableCreatedAt: "Дата регистрации",
     roleAdmin: "Администратор",
     roleUser: "Пользователь",
+    accountTypePersonal: "Личный",
+    accountTypeBusiness: "Магазин",
     telegramConnected: "Подключён",
     telegramNotConnected: "Не подключён",
     promote: "Сделать админом",
     demote: "Снять права админа",
     roleUpdateError: "Не удалось обновить роль.",
+    convertToBusiness: "Сделать магазином",
+    businessNamePlaceholder: "Название магазина",
+    activateSubscription: "Активировать",
+    deactivateSubscription: "Отключить",
+    businessUpdateError: "Не удалось выполнить действие.",
   },
   debtStatus: {
     pending: "Ожидается",
@@ -353,6 +366,8 @@ const ruDictionary: Dictionary = {
     PROVIDER_NOT_CONFIGURED: "Этот способ оплаты пока недоступен.",
     PROVIDER_NOT_FOUND: "Способ оплаты не найден.",
     RECEIPT_NOT_FOUND: "Чек не найден.",
+    SUBSCRIPTION_INACTIVE:
+      "Подписка неактивна. Свяжитесь с администратором.",
     GENERIC: "Произошла непредвиденная ошибка.",
   },
 };

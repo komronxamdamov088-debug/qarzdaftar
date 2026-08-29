@@ -5,6 +5,8 @@ export type UserRole = 'user' | 'admin';
 
 export type UserLocale = 'uz' | 'ru';
 
+export type AccountType = 'personal' | 'business';
+
 export type DebtStatus =
   'pending' | 'confirmed' | 'partially_paid' | 'paid' | 'overdue' | 'cancelled';
 
@@ -42,6 +44,9 @@ export interface Database {
           push_enabled: boolean;
           telegram_enabled: boolean;
           locale: UserLocale;
+          account_type: AccountType;
+          business_name: string | null;
+          subscription_active: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -54,6 +59,9 @@ export interface Database {
           push_enabled?: boolean;
           telegram_enabled?: boolean;
           locale?: UserLocale;
+          account_type?: AccountType;
+          business_name?: string | null;
+          subscription_active?: boolean;
           created_at?: string;
           updated_at?: string;
         };

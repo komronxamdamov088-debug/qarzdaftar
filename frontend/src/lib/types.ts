@@ -207,6 +207,8 @@ export interface AdminStats {
   telegramConnectedUsers: number;
 }
 
+export type AccountType = "personal" | "business";
+
 export interface AdminUserSummary {
   id: string;
   name: string;
@@ -214,6 +216,9 @@ export interface AdminUserSummary {
   role: "user" | "admin";
   telegramConnected: boolean;
   createdAt: string;
+  accountType: AccountType;
+  businessName: string | null;
+  subscriptionActive: boolean;
 }
 
 export interface AdminReports {

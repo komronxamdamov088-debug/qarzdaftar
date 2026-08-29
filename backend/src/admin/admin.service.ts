@@ -7,7 +7,12 @@ import {
 } from '@nestjs/common';
 import { SUPABASE_CLIENT } from '../database/supabase.provider';
 import type { SupabaseClient } from '../database/supabase.provider';
-import { DebtStatus, ReminderStatus } from '../database/database.types';
+import {
+  AccountType,
+  DebtStatus,
+  ReminderStatus,
+  UserRole,
+} from '../database/database.types';
 import { Role } from '../common/decorators/roles.decorator';
 import { AdminStats } from './entities/admin-stats.entity';
 import { AdminUserSummary } from './entities/admin-user-summary.entity';
@@ -117,7 +122,9 @@ export class AdminService {
     ] = await Promise.all([
       this.supabase
         .from('users')
-        .select('id, name, phone, role, created_at')
+        .select(
+          'id, name, phone, role, account_type, business_name, subscription_active, created_at',
+        )
         .order('created_at', { ascending: false }),
       this.supabase.from('telegram_connections').select('user_id'),
     ]);
@@ -138,12 +145,17 @@ export class AdminService {
       role: user.role,
       telegramConnected: connectedUserIds.has(user.id),
       createdAt: user.created_at,
+      accountType: user.account_type,
+      businessName: user.business_name,
+      subscriptionActive: user.subscription_active,
     }));
   }
 
-  // Note: role changes take effect on the target user's *next* login — the JWT
-  // payload embeds the role at sign time and this app has no session/token
-  // revocation mechanism, so an already-issued token keeps the old role.
+  // Role changes now take effect immediately, not just on the target's next
+  // login: JwtStrategy re-reads role fresh from the database on every
+  // authenticated request rather than trusting the JWT payload alone (added
+  // together with the business-subscription gate below, which needs the same
+  // live lookup to cut off access immediately).
   async updateUserRole(
     currentAdminId: string,
     targetUserId: string,
@@ -159,7 +171,9 @@ export class AdminService {
       .from('users')
       .update({ role })
       .eq('id', targetUserId)
-      .select('id, name, phone, role, created_at')
+      .select(
+        'id, name, phone, role, account_type, business_name, subscription_active, created_at',
+      )
       .maybeSingle();
 
     if (error) {
@@ -169,19 +183,85 @@ export class AdminService {
       throw new NotFoundException('Foydalanuvchi topilmadi');
     }
 
-    const { count } = await this.supabase
-      .from('telegram_connections')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', targetUserId);
+    return this.toUserSummary(data);
+  }
 
-    return {
-      id: data.id,
-      name: data.name,
-      phone: data.phone,
-      role: data.role,
-      telegramConnected: (count ?? 0) > 0,
-      createdAt: data.created_at,
-    };
+  // A business account is always an existing regular user account the admin
+  // manually flags after onboarding a shop outside the app — there is no
+  // self-serve way to become a business, matching how the very first admin
+  // account must also be created by hand (see CLAUDE.md section 9's
+  // bootstrap note). Activating always turns the subscription on: this is
+  // the "I went and set it up for them" action described by the product
+  // owner, not a no-op rename.
+  async convertToBusiness(
+    targetUserId: string,
+    businessName: string,
+  ): Promise<AdminUserSummary> {
+    const { data, error } = await this.supabase
+      .from('users')
+      .update({
+        account_type: 'business',
+        business_name: businessName,
+        subscription_active: true,
+      })
+      .eq('id', targetUserId)
+      .select(
+        'id, name, phone, role, account_type, business_name, subscription_active, created_at',
+      )
+      .maybeSingle();
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!data) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+
+    return this.toUserSummary(data);
+  }
+
+  // Flips subscription_active only — see JwtStrategy for how a deactivated
+  // business account is immediately locked out of every authenticated route,
+  // not just on its next login.
+  async updateSubscriptionStatus(
+    targetUserId: string,
+    active: boolean,
+  ): Promise<AdminUserSummary> {
+    const { data: existing, error: fetchError } = await this.supabase
+      .from('users')
+      .select('account_type')
+      .eq('id', targetUserId)
+      .maybeSingle();
+
+    if (fetchError) {
+      throw new InternalServerErrorException(fetchError.message);
+    }
+    if (!existing) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+    if (existing.account_type !== 'business') {
+      throw new BadRequestException(
+        "Obuna holatini faqat do'kon hisoblari uchun o'zgartirish mumkin",
+      );
+    }
+
+    const { data, error } = await this.supabase
+      .from('users')
+      .update({ subscription_active: active })
+      .eq('id', targetUserId)
+      .select(
+        'id, name, phone, role, account_type, business_name, subscription_active, created_at',
+      )
+      .maybeSingle();
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!data) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+
+    return this.toUserSummary(data);
   }
 
   async getReports(): Promise<AdminReports> {
@@ -215,6 +295,38 @@ export class AdminService {
     }
 
     return { debtsByStatus, remindersByStatus };
+  }
+
+  private async toUserSummary(user: {
+    id: string;
+    name: string;
+    phone: string | null;
+    role: UserRole;
+    account_type: AccountType;
+    business_name: string | null;
+    subscription_active: boolean;
+    created_at: string;
+  }): Promise<AdminUserSummary> {
+    const { count, error } = await this.supabase
+      .from('telegram_connections')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id);
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    return {
+      id: user.id,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+      telegramConnected: (count ?? 0) > 0,
+      createdAt: user.created_at,
+      accountType: user.account_type,
+      businessName: user.business_name,
+      subscriptionActive: user.subscription_active,
+    };
   }
 
   private async countRows(

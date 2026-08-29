@@ -1,4 +1,4 @@
-import { UserRole } from '../../database/database.types';
+import { AccountType, UserRole } from '../../database/database.types';
 
 // Deliberately excludes debts/amounts — CLAUDE.md section 8: admins must not
 // see private debt details by default. Only account-level fields are exposed.
@@ -9,4 +9,7 @@ export interface AdminUserSummary {
   role: UserRole;
   telegramConnected: boolean;
   createdAt: string;
+  accountType: AccountType;
+  businessName: string | null;
+  subscriptionActive: boolean;
 }

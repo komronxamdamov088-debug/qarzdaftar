@@ -7,6 +7,7 @@ import { ErrorState } from "@/components/error-state";
 import { getLocale } from "@/i18n/get-locale";
 import { getDictionary } from "@/i18n/dictionaries";
 import { RoleToggleButton } from "./role-toggle-button";
+import { BusinessStatusControl } from "./business-status-control";
 
 async function loadUsers(
   token: string,
@@ -45,18 +46,22 @@ export default async function AdminUsersPage() {
       <h1 className="text-xl font-semibold">{dict.admin.usersTitle}</h1>
 
       <div className="overflow-x-auto rounded-xl bg-card shadow-sm">
-        <table className="w-full min-w-[640px] text-left text-sm">
+        <table className="w-full min-w-[820px] text-left text-sm">
           <thead>
             <tr className="border-b border-black/5 text-xs text-muted-foreground">
               <th className="px-4 py-3 font-medium">{dict.admin.tableName}</th>
               <th className="px-4 py-3 font-medium">{dict.admin.tablePhone}</th>
               <th className="px-4 py-3 font-medium">{dict.admin.tableRole}</th>
               <th className="px-4 py-3 font-medium">
+                {dict.admin.tableAccountType}
+              </th>
+              <th className="px-4 py-3 font-medium">
                 {dict.admin.tableTelegram}
               </th>
               <th className="px-4 py-3 font-medium">
                 {dict.admin.tableCreatedAt}
               </th>
+              <th className="px-4 py-3 font-medium"></th>
               <th className="px-4 py-3 font-medium"></th>
             </tr>
           </thead>
@@ -73,6 +78,11 @@ export default async function AdminUsersPage() {
                     : dict.admin.roleUser}
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">
+                  {user.accountType === "business"
+                    ? dict.admin.accountTypeBusiness
+                    : dict.admin.accountTypePersonal}
+                </td>
+                <td className="px-4 py-3 text-muted-foreground">
                   {user.telegramConnected
                     ? dict.admin.telegramConnected
                     : dict.admin.telegramNotConnected}
@@ -86,6 +96,9 @@ export default async function AdminUsersPage() {
                     role={user.role}
                     disabled={user.id === currentUser.id}
                   />
+                </td>
+                <td className="px-4 py-3">
+                  <BusinessStatusControl user={user} />
                 </td>
               </tr>
             ))}

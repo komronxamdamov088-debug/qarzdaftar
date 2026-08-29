@@ -29,6 +29,11 @@ const uzDictionary = {
     description:
       "Bu sahifani ko'rish uchun avval hisobingizga kiring. Telefon/OTP va Telegram orqali kirish tez orada faollashtiriladi.",
   },
+  subscriptionInactive: {
+    title: "Obuna faol emas",
+    description:
+      "Hisobingiz uchun oylik obuna hozircha faol emas. Ilovadan foydalanishni davom ettirish uchun administrator bilan bog'laning.",
+  },
   home: {
     heroLine1: "Qarz unutilmaydi.",
     heroLine2: "Munosabat buzilmaydi.",
@@ -271,15 +276,23 @@ const uzDictionary = {
     tableName: "Ism",
     tablePhone: "Telefon",
     tableRole: "Rol",
+    tableAccountType: "Hisob turi",
     tableTelegram: "Telegram",
     tableCreatedAt: "Ro'yxatdan o'tgan",
     roleAdmin: "Admin",
     roleUser: "Foydalanuvchi",
+    accountTypePersonal: "Shaxsiy",
+    accountTypeBusiness: "Do'kon",
     telegramConnected: "Ulangan",
     telegramNotConnected: "Ulanmagan",
     promote: "Admin qilish",
     demote: "Admindan olish",
     roleUpdateError: "Rolni yangilashda xatolik yuz berdi.",
+    convertToBusiness: "Do'konga aylantirish",
+    businessNamePlaceholder: "Do'kon nomi",
+    activateSubscription: "Faollashtirish",
+    deactivateSubscription: "O'chirish",
+    businessUpdateError: "Amalni bajarishda xatolik yuz berdi.",
   },
   debtStatus: {
     pending: "Kutilmoqda",
@@ -352,6 +365,7 @@ const uzDictionary = {
     PROVIDER_NOT_CONFIGURED: "Bu to'lov usuli hozircha mavjud emas.",
     PROVIDER_NOT_FOUND: "To'lov usuli topilmadi.",
     RECEIPT_NOT_FOUND: "Chek topilmadi.",
+    SUBSCRIPTION_INACTIVE: "Obuna faol emas. Administrator bilan bog'laning.",
     GENERIC: "Kutilmagan xatolik yuz berdi.",
   },
 };
