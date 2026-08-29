@@ -1,4 +1,4 @@
-const CACHE_NAME = "qarzdaftar-shell-v1";
+const CACHE_NAME = "qarzdaftar-shell-v2";
 // Only the public landing page is cached — authenticated pages carry private
 // financial data and must always be fetched fresh (CLAUDE.md section 21).
 const SHELL_URLS = ["/"];
@@ -33,8 +33,21 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
   if (!SHELL_URLS.includes(url.pathname)) return;
 
+  // Network-first, cache as a fallback for offline use only. The previous
+  // cache-first strategy served the shell's very first cached response
+  // forever — including the Telegram Mini App's login-bootstrap script on
+  // "/" — with no way for a returning user to ever see a newer deploy
+  // short of manually clearing site data. That silently broke live login
+  // for real users after unrelated deploys and went undetected because
+  // build/lint/curl checks never exercise a warm service-worker cache.
   event.respondWith(
-    caches.match(request).then((cached) => cached || fetch(request)),
+    fetch(request)
+      .then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        return response;
+      })
+      .catch(() => caches.match(request)),
   );
 });
 
