@@ -617,4 +617,4 @@ User feedback: the discount was only visible if a shop owner thought to open the
 - `app/(app)/profile/page.tsx`'s existing subscription card also restyled to match: the previously separate "Chegirma"/"Joriy narx" rows collapsed into one row (struck-through original price + bold discounted price) with a `-X%` pill badge next to the card title, consistent with the new dashboard banner instead of a plain 4-row `<dl>`.
 - New dict keys: top-level `promoBanner.{title,perMonth}` in both `uz.ts`/`ru.ts`.
 - Frontend `npm run build` + `npm run lint` clean; live `next dev` sweep of `/dashboard`/`/profile` both `200`, no dev-log errors (anonymous visitor only — no session, so the actual banner-rendering branch itself wasn't visually exercised, same standing gap as everything else business-account-related this session).
-- **Pushed to production** as commit `<fill in after commit>` — Render/Vercel auto-deploy from `main`.
+- **Pushed to production** as commit `fbdf430` — Render/Vercel auto-deploy from `main`.
