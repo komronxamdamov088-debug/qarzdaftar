@@ -36,6 +36,28 @@ const REMINDER_STATUSES: ReminderStatus[] = [
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+// Kept as a single string literal (not built via `+` concatenation) so
+// supabase-js's typed client can still parse the column list at the type
+// level — concatenating literals widens the type to plain `string`, which
+// breaks that inference and made every `.select(USER_SUMMARY_COLUMNS)` call
+// fall back to an untyped `GenericStringError` result.
+const USER_SUMMARY_COLUMNS =
+  'id, name, phone, role, account_type, business_name, subscription_active, subscription_price, subscription_discount_percent, subscription_valid_until, created_at';
+
+interface UserSummaryRow {
+  id: string;
+  name: string;
+  phone: string | null;
+  role: UserRole;
+  account_type: AccountType;
+  business_name: string | null;
+  subscription_active: boolean;
+  subscription_price: string;
+  subscription_discount_percent: string;
+  subscription_valid_until: string | null;
+  created_at: string;
+}
+
 @Injectable()
 export class AdminService {
   constructor(
@@ -126,9 +148,7 @@ export class AdminService {
   }): Promise<AdminUserSummary[]> {
     let query = this.supabase
       .from('users')
-      .select(
-        'id, name, phone, role, account_type, business_name, subscription_active, created_at',
-      )
+      .select(USER_SUMMARY_COLUMNS)
       .order('created_at', { ascending: false });
 
     const search = filter?.search?.trim().replace(/[,()%]/g, '');
@@ -168,6 +188,9 @@ export class AdminService {
       accountType: user.account_type,
       businessName: user.business_name,
       subscriptionActive: user.subscription_active,
+      subscriptionPrice: user.subscription_price,
+      subscriptionDiscountPercent: user.subscription_discount_percent,
+      subscriptionValidUntil: user.subscription_valid_until,
     }));
   }
 
@@ -191,9 +214,7 @@ export class AdminService {
       .from('users')
       .update({ role })
       .eq('id', targetUserId)
-      .select(
-        'id, name, phone, role, account_type, business_name, subscription_active, created_at',
-      )
+      .select(USER_SUMMARY_COLUMNS)
       .maybeSingle();
 
     if (error) {
@@ -225,9 +246,7 @@ export class AdminService {
         subscription_active: true,
       })
       .eq('id', targetUserId)
-      .select(
-        'id, name, phone, role, account_type, business_name, subscription_active, created_at',
-      )
+      .select(USER_SUMMARY_COLUMNS)
       .maybeSingle();
 
     if (error) {
@@ -247,9 +266,82 @@ export class AdminService {
     targetUserId: string,
     active: boolean,
   ): Promise<AdminUserSummary> {
+    await this.assertBusinessAccount(
+      targetUserId,
+      "Obuna holatini faqat do'kon hisoblari uchun o'zgartirish mumkin",
+    );
+
+    const { data, error } = await this.supabase
+      .from('users')
+      .update({ subscription_active: active })
+      .eq('id', targetUserId)
+      .select(USER_SUMMARY_COLUMNS)
+      .maybeSingle();
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!data) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+
+    return this.toUserSummary(data);
+  }
+
+  // Records the monthly price and an optional current-month discount for a
+  // shop. No billing engine — purely informational, shown to the shop owner
+  // in their own profile too (see frontend profile page), and never
+  // automatically affects subscription_active.
+  async updateSubscriptionPricing(
+    targetUserId: string,
+    dto: { price?: number; discountPercent?: number },
+  ): Promise<AdminUserSummary> {
+    await this.assertBusinessAccount(
+      targetUserId,
+      "Narx/chegirmani faqat do'kon hisoblari uchun o'zgartirish mumkin",
+    );
+
+    const update: {
+      subscription_price?: number;
+      subscription_discount_percent?: number;
+    } = {};
+    if (dto.price !== undefined) {
+      update.subscription_price = dto.price;
+    }
+    if (dto.discountPercent !== undefined) {
+      update.subscription_discount_percent = dto.discountPercent;
+    }
+
+    const { data, error } = await this.supabase
+      .from('users')
+      .update(update)
+      .eq('id', targetUserId)
+      .select(USER_SUMMARY_COLUMNS)
+      .maybeSingle();
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!data) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+
+    return this.toUserSummary(data);
+  }
+
+  // "Bonus kun" extends how far subscription_valid_until reaches — purely a
+  // record of "paid through" that the admin and the shop owner can both see;
+  // it never touches subscription_active on its own. Extends from whichever
+  // is later: today, or the shop's current valid-until date (so adding bonus
+  // days to an account that's still comfortably paid up stacks correctly
+  // instead of resetting to today + days).
+  async addSubscriptionBonusDays(
+    targetUserId: string,
+    days: number,
+  ): Promise<AdminUserSummary> {
     const { data: existing, error: fetchError } = await this.supabase
       .from('users')
-      .select('account_type')
+      .select('account_type, subscription_valid_until')
       .eq('id', targetUserId)
       .maybeSingle();
 
@@ -261,17 +353,26 @@ export class AdminService {
     }
     if (existing.account_type !== 'business') {
       throw new BadRequestException(
-        "Obuna holatini faqat do'kon hisoblari uchun o'zgartirish mumkin",
+        "Bonus kunlarni faqat do'kon hisoblari uchun qo'shish mumkin",
       );
     }
 
+    const today = new Date();
+    const currentValidUntil = existing.subscription_valid_until
+      ? new Date(existing.subscription_valid_until)
+      : null;
+    const base =
+      currentValidUntil && currentValidUntil > today
+        ? currentValidUntil
+        : today;
+    const next = new Date(base);
+    next.setDate(next.getDate() + days);
+
     const { data, error } = await this.supabase
       .from('users')
-      .update({ subscription_active: active })
+      .update({ subscription_valid_until: next.toISOString().slice(0, 10) })
       .eq('id', targetUserId)
-      .select(
-        'id, name, phone, role, account_type, business_name, subscription_active, created_at',
-      )
+      .select(USER_SUMMARY_COLUMNS)
       .maybeSingle();
 
     if (error) {
@@ -282,6 +383,27 @@ export class AdminService {
     }
 
     return this.toUserSummary(data);
+  }
+
+  private async assertBusinessAccount(
+    targetUserId: string,
+    errorMessage: string,
+  ): Promise<void> {
+    const { data, error } = await this.supabase
+      .from('users')
+      .select('account_type')
+      .eq('id', targetUserId)
+      .maybeSingle();
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!data) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+    if (data.account_type !== 'business') {
+      throw new BadRequestException(errorMessage);
+    }
   }
 
   async getReports(): Promise<AdminReports> {
@@ -317,16 +439,7 @@ export class AdminService {
     return { debtsByStatus, remindersByStatus };
   }
 
-  private async toUserSummary(user: {
-    id: string;
-    name: string;
-    phone: string | null;
-    role: UserRole;
-    account_type: AccountType;
-    business_name: string | null;
-    subscription_active: boolean;
-    created_at: string;
-  }): Promise<AdminUserSummary> {
+  private async toUserSummary(user: UserSummaryRow): Promise<AdminUserSummary> {
     const { data: connection, error } = await this.supabase
       .from('telegram_connections')
       .select('username')
@@ -348,6 +461,9 @@ export class AdminService {
       accountType: user.account_type,
       businessName: user.business_name,
       subscriptionActive: user.subscription_active,
+      subscriptionPrice: user.subscription_price,
+      subscriptionDiscountPercent: user.subscription_discount_percent,
+      subscriptionValidUntil: user.subscription_valid_until,
     };
   }
 

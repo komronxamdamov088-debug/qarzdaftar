@@ -47,6 +47,9 @@ export interface Database {
           account_type: AccountType;
           business_name: string | null;
           subscription_active: boolean;
+          subscription_price: string;
+          subscription_discount_percent: string;
+          subscription_valid_until: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -62,6 +65,9 @@ export interface Database {
           account_type?: AccountType;
           business_name?: string | null;
           subscription_active?: boolean;
+          subscription_price?: number;
+          subscription_discount_percent?: number;
+          subscription_valid_until?: string | null;
           created_at?: string;
           updated_at?: string;
         };

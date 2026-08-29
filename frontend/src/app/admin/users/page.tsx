@@ -156,7 +156,7 @@ export default async function AdminUsersPage(
                     />
                   </td>
                   <td className="px-4 py-3">
-                    <BusinessStatusControl user={user} />
+                    <BusinessStatusControl user={user} locale={locale} />
                   </td>
                 </tr>
               ))}

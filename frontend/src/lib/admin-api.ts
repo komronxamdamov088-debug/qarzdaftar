@@ -58,3 +58,25 @@ export function updateAdminUserSubscriptionStatus(
     token,
   });
 }
+
+export function updateAdminUserSubscriptionPricing(
+  token: string,
+  userId: string,
+  input: { price?: number; discountPercent?: number },
+) {
+  return apiFetch<AdminUserSummary>(
+    `/admin/users/${userId}/subscription-pricing`,
+    { method: "PATCH", body: input, token },
+  );
+}
+
+export function addAdminUserSubscriptionBonus(
+  token: string,
+  userId: string,
+  days: number,
+) {
+  return apiFetch<AdminUserSummary>(
+    `/admin/users/${userId}/subscription-bonus`,
+    { method: "POST", body: { days }, token },
+  );
+}

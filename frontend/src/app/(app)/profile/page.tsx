@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ApiError } from "@/lib/api";
 import { getCurrentUser } from "@/lib/debts-api";
 import { getServerToken } from "@/lib/session";
+import { formatDate, formatSom } from "@/lib/format";
 import type { CurrentUser } from "@/lib/types";
 import { SignInRequired } from "@/components/sign-in-required";
 import { ErrorState } from "@/components/error-state";
@@ -26,7 +27,8 @@ async function loadUser(
 }
 
 export default async function ProfilePage() {
-  const dict = getDictionary(await getLocale());
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
   const token = await getServerToken();
   if (!token) {
     return <SignInRequired />;
@@ -38,6 +40,9 @@ export default async function ProfilePage() {
   }
 
   const { user } = result;
+  const discountPercent = Number(user.subscription_discount_percent);
+  const effectivePrice =
+    Number(user.subscription_price) * (1 - discountPercent / 100);
 
   return (
     <main className="flex flex-1 flex-col gap-6 px-4 py-6">
@@ -62,6 +67,46 @@ export default async function ProfilePage() {
           {dict.profile.adminPanel}
           <span className="text-muted-foreground">→</span>
         </Link>
+      )}
+
+      {user.account_type === "business" && (
+        <section className="rounded-xl bg-card px-4 py-4 shadow-sm">
+          <h2 className="mb-3 text-sm font-semibold">
+            {dict.profile.subscription.title}
+          </h2>
+          <dl className="flex flex-col gap-2 text-sm">
+            <div className="flex items-center justify-between">
+              <dt className="text-muted-foreground">
+                {dict.profile.subscription.price}
+              </dt>
+              <dd>{formatSom(user.subscription_price, locale)}</dd>
+            </div>
+            {discountPercent > 0 && (
+              <div className="flex items-center justify-between">
+                <dt className="text-muted-foreground">
+                  {dict.profile.subscription.discount}
+                </dt>
+                <dd>{discountPercent}%</dd>
+              </div>
+            )}
+            <div className="flex items-center justify-between font-medium">
+              <dt className="text-muted-foreground font-normal">
+                {dict.profile.subscription.effectivePrice}
+              </dt>
+              <dd>{formatSom(effectivePrice, locale)}</dd>
+            </div>
+            <div className="flex items-center justify-between">
+              <dt className="text-muted-foreground">
+                {dict.profile.subscription.validUntil}
+              </dt>
+              <dd>
+                {user.subscription_valid_until
+                  ? formatDate(user.subscription_valid_until, locale)
+                  : dict.profile.subscription.noExpiry}
+              </dd>
+            </div>
+          </dl>
+        </section>
       )}
 
       <section className="rounded-xl bg-card px-4 py-4 shadow-sm">

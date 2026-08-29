@@ -13,4 +13,7 @@ export interface AdminUserSummary {
   accountType: AccountType;
   businessName: string | null;
   subscriptionActive: boolean;
+  subscriptionPrice: string;
+  subscriptionDiscountPercent: string;
+  subscriptionValidUntil: string | null;
 }

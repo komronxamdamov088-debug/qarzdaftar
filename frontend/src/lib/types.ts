@@ -76,6 +76,10 @@ export interface CurrentUser {
   push_enabled: boolean;
   telegram_enabled: boolean;
   locale: "uz" | "ru";
+  account_type: AccountType;
+  subscription_price: string;
+  subscription_discount_percent: string;
+  subscription_valid_until: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -220,6 +224,9 @@ export interface AdminUserSummary {
   accountType: AccountType;
   businessName: string | null;
   subscriptionActive: boolean;
+  subscriptionPrice: string;
+  subscriptionDiscountPercent: string;
+  subscriptionValidUntil: string | null;
 }
 
 export interface AdminReports {

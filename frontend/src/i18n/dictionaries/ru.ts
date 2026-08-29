@@ -202,6 +202,14 @@ const ruDictionary: Dictionary = {
     language: "Язык",
     addPhone: "+ Добавить номер телефона",
     phonePlaceholder: "+998 90 123 45 67",
+    subscription: {
+      title: "Подписка",
+      price: "Цена в месяц",
+      discount: "Скидка",
+      effectivePrice: "Текущая цена",
+      validUntil: "Действует до",
+      noExpiry: "Срок не указан",
+    },
   },
   notificationSettings: {
     title: "Уведомления",
@@ -304,6 +312,12 @@ const ruDictionary: Dictionary = {
     activateSubscription: "Активировать",
     deactivateSubscription: "Отключить",
     businessUpdateError: "Не удалось выполнить действие.",
+    subscriptionValidUntil: "Действует до",
+    subscriptionNoExpiry: "Не указано",
+    subscriptionPricePlaceholder: "Цена в месяц (сум)",
+    subscriptionDiscountPlaceholder: "Скидка (%)",
+    editSubscriptionPricing: "Изменить цену/скидку",
+    addSubscriptionBonusDays: "Добавить бонусные дни",
   },
   debtStatus: {
     pending: "Ожидается",

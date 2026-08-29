@@ -200,6 +200,14 @@ const uzDictionary = {
     language: "Til",
     addPhone: "+ Telefon raqami qo'shish",
     phonePlaceholder: "+998 90 123 45 67",
+    subscription: {
+      title: "Obuna",
+      price: "Oylik narx",
+      discount: "Chegirma",
+      effectivePrice: "Joriy narx",
+      validUntil: "Amal qilish muddati",
+      noExpiry: "Muddat belgilanmagan",
+    },
   },
   notificationSettings: {
     title: "Bildirishnomalar",
@@ -302,6 +310,12 @@ const uzDictionary = {
     activateSubscription: "Faollashtirish",
     deactivateSubscription: "O'chirish",
     businessUpdateError: "Amalni bajarishda xatolik yuz berdi.",
+    subscriptionValidUntil: "Muddati",
+    subscriptionNoExpiry: "Belgilanmagan",
+    subscriptionPricePlaceholder: "Oylik narx (so'm)",
+    subscriptionDiscountPlaceholder: "Chegirma (%)",
+    editSubscriptionPricing: "Narx/chegirmani tahrirlash",
+    addSubscriptionBonusDays: "Bonus kun qo'shish",
   },
   debtStatus: {
     pending: "Kutilmoqda",
