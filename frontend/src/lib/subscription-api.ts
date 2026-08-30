@@ -15,7 +15,7 @@ export function registerBusiness(
   input: {
     businessName: string;
     planMonths: SubscriptionPlanMonths;
-    phone?: string;
+    phone: string;
   },
 ) {
   return apiFetch<CurrentUser>("/users/me/business", {

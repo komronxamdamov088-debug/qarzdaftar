@@ -20,6 +20,11 @@ const PLAN_DISCOUNT_PERCENT: Record<SubscriptionPlanMonths, number> = {
   2: 15,
 };
 
+// Same shape as backend RegisterBusinessDto/UpdatePhoneDto's @Matches regex
+// — checked here purely for immediate feedback; the server always
+// re-validates and additionally rejects a phone already used elsewhere.
+const PHONE_RE = /^\+?[0-9]{7,15}$/;
+
 export function BusinessRegisterForm() {
   const { dict, locale } = useTranslations();
   const router = useRouter();
@@ -35,12 +40,17 @@ export function BusinessRegisterForm() {
       setError(dict.subscriptionGate.businessNameRequired);
       return;
     }
+    const trimmedPhone = phone.trim();
+    if (!PHONE_RE.test(trimmedPhone)) {
+      setError(dict.subscriptionGate.phoneRequired);
+      return;
+    }
     setError(null);
     startTransition(async () => {
       const result = await registerBusinessAction(
         trimmed,
         planMonths,
-        phone.trim() || undefined,
+        trimmedPhone,
       );
       if (!result.ok) {
         setError(result.message);
@@ -73,6 +83,7 @@ export function BusinessRegisterForm() {
         onChange={(event) => setPhone(event.target.value)}
         placeholder={dict.subscriptionGate.phonePlaceholder}
         type="tel"
+        required
         className="w-full rounded-lg border border-black/10 px-3 py-2.5 text-sm"
       />
 

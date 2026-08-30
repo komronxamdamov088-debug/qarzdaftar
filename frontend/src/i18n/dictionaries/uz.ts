@@ -37,7 +37,8 @@ const uzDictionary = {
     registerDescription: "Do'kon nomini kiriting va obuna rejasini tanlang.",
     businessNamePlaceholder: "Do'kon nomi",
     businessNameRequired: "Do'kon nomini kiriting.",
-    phonePlaceholder: "Telefon raqami (ixtiyoriy)",
+    phonePlaceholder: "Telefon raqami",
+    phoneRequired: "Telefon raqamini to'g'ri kiriting.",
     plan1Month: "1 oylik obuna",
     plan2Months: "2 oylik obuna",
     discountLabel: "chegirma",
@@ -421,6 +422,8 @@ const uzDictionary = {
     ACCESS_RESTRICTED: "Bu ilova hozircha faqat obunasi faol do'konlar uchun mavjud.",
     NOT_REGISTERED_AS_BUSINESS:
       "Avval do'kon sifatida ro'yxatdan o'ting va rejani tanlang.",
+    PHONE_ALREADY_REGISTERED:
+      "Bu telefon raqami allaqachon boshqa hisobda ro'yxatdan o'tgan.",
     GENERIC: "Kutilmagan xatolik yuz berdi.",
   },
 };

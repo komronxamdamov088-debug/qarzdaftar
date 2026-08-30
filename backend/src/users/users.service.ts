@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -108,6 +109,8 @@ export class UsersService {
   // requestContact() prompt on the frontend) so the admin can see it in
   // /admin/users without needing a separate outreach channel.
   async updatePhone(userId: string, dto: UpdatePhoneDto): Promise<User> {
+    await this.assertPhoneAvailable(dto.phone, userId);
+
     const { data, error } = await this.supabase
       .from('users')
       .update({ phone: dto.phone })
@@ -142,6 +145,8 @@ export class UsersService {
     userId: string,
     dto: RegisterBusinessDto,
   ): Promise<User> {
+    await this.assertPhoneAvailable(dto.phone, userId);
+
     const price = SUBSCRIPTION_PLAN_PRICES[dto.planMonths];
     const discountPercent = subscriptionPlanDiscountPercent(dto.planMonths);
 
@@ -154,7 +159,7 @@ export class UsersService {
         subscription_price: price,
         subscription_discount_percent: discountPercent,
         subscription_active: false,
-        ...(dto.phone !== undefined && { phone: dto.phone }),
+        phone: dto.phone,
       })
       .eq('id', userId)
       .select('*')
@@ -164,5 +169,34 @@ export class UsersService {
       throw new InternalServerErrorException(error.message);
     }
     return data;
+  }
+
+  // Shared by registerBusiness (phone is required there) and updatePhone
+  // (self-service from the profile page) — a phone already claimed by a
+  // different user row is rejected outright rather than silently
+  // overwritten or merged. No account-merge logic is built (same
+  // deliberate gap CLAUDE.md section 25 documents for Telegram linking), so
+  // the honest behavior here is a clear error, not a guess at merging.
+  private async assertPhoneAvailable(
+    phone: string,
+    currentUserId: string,
+  ): Promise<void> {
+    const { data: existing, error } = await this.supabase
+      .from('users')
+      .select('id')
+      .eq('phone', phone)
+      .neq('id', currentUserId)
+      .maybeSingle();
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (existing) {
+      throw new BadRequestException({
+        code: 'PHONE_ALREADY_REGISTERED',
+        message:
+          "Bu telefon raqami allaqachon boshqa hisobda ro'yxatdan o'tgan",
+      });
+    }
   }
 }

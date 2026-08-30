@@ -39,7 +39,8 @@ const ruDictionary: Dictionary = {
     registerDescription: "Введите название магазина и выберите план подписки.",
     businessNamePlaceholder: "Название магазина",
     businessNameRequired: "Введите название магазина.",
-    phonePlaceholder: "Номер телефона (необязательно)",
+    phonePlaceholder: "Номер телефона",
+    phoneRequired: "Введите корректный номер телефона.",
     plan1Month: "Подписка на 1 месяц",
     plan2Months: "Подписка на 2 месяца",
     discountLabel: "скидка",
@@ -424,6 +425,8 @@ const ruDictionary: Dictionary = {
       "Сейчас приложение доступно только магазинам с активной подпиской.",
     NOT_REGISTERED_AS_BUSINESS:
       "Сначала зарегистрируйтесь как магазин и выберите план.",
+    PHONE_ALREADY_REGISTERED:
+      "Этот номер телефона уже зарегистрирован в другом аккаунте.",
     GENERIC: "Произошла непредвиденная ошибка.",
   },
 };

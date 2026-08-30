@@ -15,7 +15,7 @@ import { getDictionary } from "@/i18n/dictionaries";
 export async function registerBusinessAction(
   businessName: string,
   planMonths: SubscriptionPlanMonths,
-  phone?: string,
+  phone: string,
 ): Promise<{ ok: false; message: string } | { ok: true }> {
   const dict = getDictionary(await getLocale());
   const token = await getServerToken();
