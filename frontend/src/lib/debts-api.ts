@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { apiFetch } from "./api";
 import type {
   CreateDebtInput,
@@ -47,9 +48,14 @@ export function deleteDebt(token: string, id: string) {
   return apiFetch<void>(`/debts/${id}`, { method: "DELETE", token });
 }
 
-export function getCurrentUser(token: string) {
-  return apiFetch<CurrentUser>("/users/me", { token });
-}
+// Wrapped in React's cache() so the root layout's gate check and each
+// page's own data load (which both need the current user) share a single
+// GET /users/me round trip per request instead of two — every navigation
+// was paying for that fetch twice (Vercel -> Render -> Supabase and back)
+// before this, which was the single biggest contributor to slow page loads.
+export const getCurrentUser = cache((token: string) =>
+  apiFetch<CurrentUser>("/users/me", { token }),
+);
 
 export function updateUserLocale(token: string, locale: "uz" | "ru") {
   return apiFetch<CurrentUser>("/users/me/locale", {
