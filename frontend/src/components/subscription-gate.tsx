@@ -4,8 +4,7 @@ import { formatSom } from "@/lib/format";
 import { getOwnerPaymentInfo } from "@/lib/subscription-api";
 import type { CurrentUser } from "@/lib/types";
 import { BusinessRegisterForm } from "./business-register-form";
-import { SubscriptionCheckoutPicker } from "./subscription-checkout-picker";
-import { CashPaymentRequestButton } from "./cash-payment-request-button";
+import { ManualPaymentPanel } from "./manual-payment-panel";
 
 // The screen every non-admin, non-access_override user sees on every
 // protected page until they're a business account with an active
@@ -39,8 +38,7 @@ export async function SubscriptionGate({ user }: { user: CurrentUser }) {
   }
 
   // Best-effort: a failure here shouldn't break the whole gate screen — the
-  // in-app Click/Payme/Yagona Pay checkout and the "I've paid" confirmation
-  // button both still work without it.
+  // "I've paid" confirmation button still works without it.
   const paymentInfo = await getOwnerPaymentInfo().catch(() => ({
     instructions: null,
   }));
@@ -67,22 +65,8 @@ export async function SubscriptionGate({ user }: { user: CurrentUser }) {
         </span>
       </div>
 
-      <div className="w-full max-w-sm">
-        <SubscriptionCheckoutPicker />
-      </div>
-
-      {paymentInfo.instructions && (
-        <div className="flex w-full max-w-sm flex-col gap-1 rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4 text-left text-sm">
-          <span className="font-medium">
-            {dict.subscriptionGate.manualPaymentTitle}
-          </span>
-          <pre className="whitespace-pre-wrap font-sans text-muted-foreground">
-            {paymentInfo.instructions}
-          </pre>
-        </div>
-      )}
-
-      <CashPaymentRequestButton
+      <ManualPaymentPanel
+        instructions={paymentInfo.instructions}
         alreadyRequested={Boolean(user.cash_payment_requested_at)}
       />
     </div>

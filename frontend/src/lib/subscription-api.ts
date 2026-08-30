@@ -1,10 +1,5 @@
 import { apiFetch } from "./api";
-import type {
-  CheckoutResult,
-  CurrentUser,
-  PaymentProviderName,
-  SubscriptionPlanMonths,
-} from "./types";
+import type { CurrentUser, SubscriptionPlanMonths } from "./types";
 
 // Self-serve shop registration — the Mini App is shop-only, so this is how a
 // blocked personal account becomes a business and picks a plan (see backend
@@ -23,16 +18,6 @@ export function registerBusiness(
     body: input,
     token,
   });
-}
-
-export function initiateSubscriptionCheckout(
-  token: string,
-  provider: PaymentProviderName,
-) {
-  return apiFetch<CheckoutResult>(
-    `/subscription-payments/${provider}/checkout`,
-    { method: "POST", token },
-  );
 }
 
 // Flags "I've paid, please confirm" — notifies every admin (in-app +
