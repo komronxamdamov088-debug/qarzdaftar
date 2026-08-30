@@ -708,4 +708,4 @@ Root cause of the confusing prior UX: the pending screen rendered **two separate
 - `subscription-gate.tsx` simplified: replaced the `SubscriptionCheckoutPicker` + inline manual-instructions card + standalone `CashPaymentRequestButton` (three separate blocks) with one `<ManualPaymentPanel instructions={...} alreadyRequested={...} />`.
 - Removed the now-dead `subscriptionGate.checkoutError` dict key from both `uz.ts`/`ru.ts` (it was only ever shown by the deleted checkout action).
 - Frontend `npm run build` + `npm run lint` clean; live `next dev` sweep of `/` and `/dashboard` both `200`, no dev-log errors (anonymous visitor — the actual gate screen itself still needs a real pending business account to click through, same standing gap as the rest of this phase's business-account UI).
-- **Not yet pushed to production** — awaiting confirmation before pushing.
+- **Pushed to production** as commit `fe029fd` — Render/Vercel auto-deploy from `main`.
