@@ -1,8 +1,31 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "@/i18n/locale-context";
+
+// useLinkStatus must be read from a component nested *inside* the Link it
+// reports on. Without this, tapping a nav item showed zero visual change
+// until the next page's data finished loading (which can take a while on
+// this app's free-tier backend) — indistinguishable from the tap not having
+// registered at all. Dimming the item the instant it's pending gives
+// immediate feedback regardless of how long the actual navigation takes.
+function NavLinkContent({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const { pending } = useLinkStatus();
+  return (
+    <span
+      className={`transition-opacity ${pending ? "opacity-40" : "opacity-100"} ${className}`}
+    >
+      {children}
+    </span>
+  );
+}
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -29,7 +52,7 @@ export function BottomNav() {
                   aria-label={dict.nav.addDebt}
                   className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl font-semibold text-white shadow-md shadow-primary/30"
                 >
-                  +
+                  <NavLinkContent>+</NavLinkContent>
                 </Link>
               </li>
             );
@@ -42,7 +65,7 @@ export function BottomNav() {
                   active ? "text-primary font-medium" : "text-muted-foreground"
                 }`}
               >
-                {item.label}
+                <NavLinkContent>{item.label}</NavLinkContent>
               </Link>
             </li>
           );
