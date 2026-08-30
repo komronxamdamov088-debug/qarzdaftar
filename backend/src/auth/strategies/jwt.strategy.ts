@@ -8,6 +8,7 @@ import {
   AuthenticatedUser,
   JwtPayload,
 } from '../types/authenticated-user.interface';
+import { User } from '../../users/entities/user.entity';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -34,12 +35,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   // user must still be able to reach — can opt out via
   // @SkipSubscriptionGate(); a Passport strategy has no per-route escape
   // hatch, so the gate can't live here anymore.
+  // select('*') rather than a narrow column list: GET /users/me needs the
+  // full row anyway, and fetching it here too means that route can return
+  // request.user.raw directly instead of paying for a second, identical
+  // "select this same user by id" round trip right after this one.
   async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     const { data, error } = await this.supabase
       .from('users')
-      .select('id, role, account_type, subscription_active, access_override')
+      .select('*')
       .eq('id', payload.sub)
-      .maybeSingle();
+      .maybeSingle<User>();
 
     if (error || !data) {
       throw new UnauthorizedException();
@@ -51,6 +56,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       accountType: data.account_type,
       subscriptionActive: data.subscription_active,
       accessOverride: data.access_override,
+      raw: data,
     };
   }
 }

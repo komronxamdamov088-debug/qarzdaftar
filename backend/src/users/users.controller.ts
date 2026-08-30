@@ -15,10 +15,12 @@ export class UsersController {
   // A blocked user (no business account / inactive subscription) must still
   // be able to read their own state to know what to do next — see
   // frontend app/(app)/layout.tsx, which branches purely on this response.
+  // Returns the row JwtStrategy already fetched (user.raw) instead of
+  // querying for the same user a second time.
   @SkipSubscriptionGate()
   @Get('me')
   me(@CurrentUser() user: AuthenticatedUser) {
-    return this.usersService.findById(user.id);
+    return user.raw;
   }
 
   // Self-serve shop registration — see UsersService.registerBusiness for why
