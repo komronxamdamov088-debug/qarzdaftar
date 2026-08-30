@@ -48,11 +48,12 @@ const uzDictionary = {
     pendingDescription:
       "Hisobingiz faollashtirilishi uchun tanlangan reja bo'yicha to'lovni amalga oshiring.",
     checkoutError: "To'lovni boshlashda xatolik yuz berdi.",
-    supportHint:
-      "Naqd yoki boshqa usulda to'lamoqchi bo'lsangiz, quyidagi tugmani bosing — administratorimiz siz bilan bog'lanadi.",
-    cashRequestButton: "Naqt to'lov (support bilan bog'lanish)",
+    manualPaymentTitle: "Qo'lda to'lash",
+    manualPaymentHint:
+      "Yuqoridagi ma'lumotlar bo'yicha to'lovni amalga oshirgach, quyidagi tugmani bosing — administrator pulni tekshirib, hisobingizni faollashtiradi.",
+    cashRequestButton: "Men to'ladim",
     cashRequestSent:
-      "So'rovingiz yuborildi. Administrator tez orada siz bilan bog'lanadi.",
+      "Xabar berdingiz. Administrator pulni tekshirib, tez orada hisobingizni faollashtiradi.",
     cashRequestError: "So'rovni yuborishda xatolik yuz berdi.",
   },
   promoBanner: {

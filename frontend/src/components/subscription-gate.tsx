@@ -1,6 +1,7 @@
 import { getLocale } from "@/i18n/get-locale";
 import { getDictionary } from "@/i18n/dictionaries";
 import { formatSom } from "@/lib/format";
+import { getOwnerPaymentInfo } from "@/lib/subscription-api";
 import type { CurrentUser } from "@/lib/types";
 import { BusinessRegisterForm } from "./business-register-form";
 import { SubscriptionCheckoutPicker } from "./subscription-checkout-picker";
@@ -37,6 +38,13 @@ export async function SubscriptionGate({ user }: { user: CurrentUser }) {
     );
   }
 
+  // Best-effort: a failure here shouldn't break the whole gate screen — the
+  // in-app Click/Payme/Yagona Pay checkout and the "I've paid" confirmation
+  // button both still work without it.
+  const paymentInfo = await getOwnerPaymentInfo().catch(() => ({
+    instructions: null,
+  }));
+
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10 text-center">
       <div className="flex flex-col gap-2">
@@ -62,6 +70,17 @@ export async function SubscriptionGate({ user }: { user: CurrentUser }) {
       <div className="w-full max-w-sm">
         <SubscriptionCheckoutPicker />
       </div>
+
+      {paymentInfo.instructions && (
+        <div className="flex w-full max-w-sm flex-col gap-1 rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4 text-left text-sm">
+          <span className="font-medium">
+            {dict.subscriptionGate.manualPaymentTitle}
+          </span>
+          <pre className="whitespace-pre-wrap font-sans text-muted-foreground">
+            {paymentInfo.instructions}
+          </pre>
+        </div>
+      )}
 
       <CashPaymentRequestButton
         alreadyRequested={Boolean(user.cash_payment_requested_at)}

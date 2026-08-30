@@ -64,10 +64,10 @@ export class SubscriptionPaymentsService {
       throw new InternalServerErrorException(adminsError.message);
     }
 
-    const title = "Do'kon naqt to'lov so'radi";
+    const title = "Do'kon to'lovni tasdiqlashni so'ramoqda";
     const body = `${user.business_name ?? user.name} — ${Number(user.subscription_price).toLocaleString('uz-UZ')} so'm${
       user.phone ? `, tel: ${user.phone}` : ''
-    }`;
+    }. Pul kelganini tekshirib, /admin/users orqali faollashtiring.`;
 
     for (const admin of admins ?? []) {
       await this.notificationsService.create(

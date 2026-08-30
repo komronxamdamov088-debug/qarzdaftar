@@ -51,7 +51,7 @@ export function CashPaymentRequestButton({
           : dict.subscriptionGate.cashRequestButton}
       </button>
       <p className="max-w-sm text-xs text-muted-foreground">
-        {dict.subscriptionGate.supportHint}
+        {dict.subscriptionGate.manualPaymentHint}
       </p>
       {error && <p className="text-xs text-danger">{error}</p>}
     </div>

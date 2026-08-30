@@ -1,6 +1,7 @@
-import { Controller, HttpCode, Param, Post } from '@nestjs/common';
+import { Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import { SkipSubscriptionGate } from '../common/decorators/skip-subscription-gate.decorator';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.interface';
 import { SubscriptionPaymentsService } from './subscription-payments.service';
@@ -40,6 +41,21 @@ export class SubscriptionCheckoutController {
     return this.subscriptionPayments
       .requestCashPayment(user.id)
       .then(() => ({ ok: true }));
+  }
+
+  // No per-user sensitivity — the same instructions are shown to every
+  // blocked shop, so this is @Public() rather than merely gate-exempt (the
+  // subscription-gate screen needs it before a user's own token is even
+  // relevant). Returns null (never a fake/empty-string address) when unset,
+  // so the frontend can hide this section entirely rather than show a blank
+  // "pay here" box.
+  @Public()
+  @Get('payment-info')
+  getPaymentInfo() {
+    return {
+      instructions:
+        this.config.get<string>('OWNER_PAYMENT_INSTRUCTIONS') || null,
+    };
   }
 
   private frontendUrl(): string {
