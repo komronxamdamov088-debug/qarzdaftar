@@ -36,7 +36,11 @@ export function RoleToggleButton({
         disabled={disabled || isPending}
         className="rounded-full border border-black/10 px-3 py-1.5 text-xs font-medium whitespace-nowrap disabled:opacity-50"
       >
-        {role === "admin" ? dict.admin.demote : dict.admin.promote}
+        {isPending
+          ? dict.common.saving
+          : role === "admin"
+            ? dict.admin.demote
+            : dict.admin.promote}
       </button>
       {error && <p className="text-xs text-danger">{error}</p>}
     </div>

@@ -124,9 +124,11 @@ export function BusinessStatusControl({
           disabled={isPending}
           className="rounded-full border border-black/10 px-3 py-1.5 text-xs font-medium whitespace-nowrap disabled:opacity-50"
         >
-          {user.subscriptionActive
-            ? dict.admin.deactivateSubscription
-            : dict.admin.activateSubscription}
+          {isPending
+            ? dict.common.saving
+            : user.subscriptionActive
+              ? dict.admin.deactivateSubscription
+              : dict.admin.activateSubscription}
         </button>
 
         <div className="flex flex-col items-end gap-0.5 text-xs text-muted-foreground">
@@ -172,7 +174,7 @@ export function BusinessStatusControl({
                 disabled={isPending}
                 className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
               >
-                {dict.common.save}
+                {isPending ? dict.common.saving : dict.common.save}
               </button>
               <button
                 type="button"
@@ -209,7 +211,7 @@ export function BusinessStatusControl({
             disabled={isPending}
             className="rounded-full border border-black/10 px-3 py-1.5 text-xs font-medium whitespace-nowrap disabled:opacity-50"
           >
-            {dict.admin.addSubscriptionBonusDays}
+            {isPending ? dict.common.saving : dict.admin.addSubscriptionBonusDays}
           </button>
         </div>
 
@@ -221,7 +223,7 @@ export function BusinessStatusControl({
               disabled={isPending}
               className="rounded-full bg-danger px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
             >
-              {dict.admin.confirmRevertToPersonal}
+              {isPending ? dict.common.saving : dict.admin.confirmRevertToPersonal}
             </button>
             <button
               type="button"
@@ -263,7 +265,7 @@ export function BusinessStatusControl({
             disabled={isPending || !name.trim()}
             className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
           >
-            {dict.common.save}
+            {isPending ? dict.common.saving : dict.common.save}
           </button>
           <button
             type="button"

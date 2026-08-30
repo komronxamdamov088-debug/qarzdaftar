@@ -42,7 +42,7 @@ export function PhoneEditor({ phone }: { phone: string | null }) {
             disabled={isPending || !value.trim()}
             className="rounded-full bg-primary px-4 py-1.5 text-xs font-medium text-white disabled:opacity-50"
           >
-            {dict.common.save}
+            {isPending ? dict.common.saving : dict.common.save}
           </button>
           <button
             type="button"

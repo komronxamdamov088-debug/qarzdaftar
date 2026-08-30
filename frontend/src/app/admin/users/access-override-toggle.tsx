@@ -43,9 +43,11 @@ export function AccessOverrideToggle({
             : "border-black/10"
         }`}
       >
-        {active
-          ? dict.admin.accessOverrideRevoke
-          : dict.admin.accessOverrideGrant}
+        {isPending
+          ? dict.common.saving
+          : active
+            ? dict.admin.accessOverrideRevoke
+            : dict.admin.accessOverrideGrant}
       </button>
       {error && <p className="text-xs text-danger">{error}</p>}
     </div>
