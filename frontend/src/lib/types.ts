@@ -86,6 +86,7 @@ export interface CurrentUser {
   subscription_valid_until: string | null;
   subscription_plan_months: SubscriptionPlanMonths | null;
   access_override: boolean;
+  cash_payment_requested_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -234,6 +235,7 @@ export interface AdminUserSummary {
   subscriptionDiscountPercent: string;
   subscriptionValidUntil: string | null;
   accessOverride: boolean;
+  cashPaymentRequestedAt: string | null;
 }
 
 export interface AdminReports {

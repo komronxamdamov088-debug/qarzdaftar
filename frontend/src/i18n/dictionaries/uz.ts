@@ -48,7 +48,11 @@ const uzDictionary = {
       "Hisobingiz faollashtirilishi uchun tanlangan reja bo'yicha to'lovni amalga oshiring.",
     checkoutError: "To'lovni boshlashda xatolik yuz berdi.",
     supportHint:
-      "Naqd yoki boshqa usulda to'lamoqchi bo'lsangiz, bizning administratorimizga murojaat qiling — u to'lovni qabul qilib, hisobingizni qo'lda faollashtiradi.",
+      "Naqd yoki boshqa usulda to'lamoqchi bo'lsangiz, quyidagi tugmani bosing — administratorimiz siz bilan bog'lanadi.",
+    cashRequestButton: "Naqt to'lov (support bilan bog'lanish)",
+    cashRequestSent:
+      "So'rovingiz yuborildi. Administrator tez orada siz bilan bog'lanadi.",
+    cashRequestError: "So'rovni yuborishda xatolik yuz berdi.",
   },
   promoBanner: {
     title: "Sizga aksiya taqdim etildi",
@@ -340,6 +344,7 @@ const uzDictionary = {
     accessOverrideHint: "Do'kon/obunasiz ham ilovadan foydalanishga ruxsat",
     accessOverrideActive: "Ruxsat berilgan",
     accessOverrideError: "Ruxsatni yangilashda xatolik yuz berdi.",
+    cashPaymentRequested: "Naqt to'lov so'radi —",
   },
   debtStatus: {
     pending: "Kutilmoqda",

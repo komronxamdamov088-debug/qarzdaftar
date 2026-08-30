@@ -5,6 +5,7 @@ import { extractApiErrorMessage } from "@/lib/api";
 import {
   initiateSubscriptionCheckout,
   registerBusiness,
+  requestCashPayment,
 } from "@/lib/subscription-api";
 import type { CheckoutResult, PaymentProviderName, SubscriptionPlanMonths } from "@/lib/types";
 import { getServerToken } from "@/lib/session";
@@ -30,6 +31,32 @@ export async function registerBusinessAction(
       message: extractApiErrorMessage(
         error,
         dict.subscriptionGate.registerError,
+        dict.apiErrors,
+      ),
+    };
+  }
+
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+export async function requestCashPaymentAction(): Promise<
+  { ok: false; message: string } | { ok: true }
+> {
+  const dict = getDictionary(await getLocale());
+  const token = await getServerToken();
+  if (!token) {
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
+  }
+
+  try {
+    await requestCashPayment(token);
+  } catch (error) {
+    return {
+      ok: false,
+      message: extractApiErrorMessage(
+        error,
+        dict.subscriptionGate.cashRequestError,
         dict.apiErrors,
       ),
     };

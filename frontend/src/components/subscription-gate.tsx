@@ -4,6 +4,7 @@ import { formatSom } from "@/lib/format";
 import type { CurrentUser } from "@/lib/types";
 import { BusinessRegisterForm } from "./business-register-form";
 import { SubscriptionCheckoutPicker } from "./subscription-checkout-picker";
+import { CashPaymentRequestButton } from "./cash-payment-request-button";
 
 // The screen every non-admin, non-access_override user sees on every
 // protected page until they're a business account with an active
@@ -62,9 +63,9 @@ export async function SubscriptionGate({ user }: { user: CurrentUser }) {
         <SubscriptionCheckoutPicker />
       </div>
 
-      <p className="max-w-sm text-xs text-muted-foreground">
-        {dict.subscriptionGate.supportHint}
-      </p>
+      <CashPaymentRequestButton
+        alreadyRequested={Boolean(user.cash_payment_requested_at)}
+      />
     </div>
   );
 }

@@ -10,6 +10,8 @@ import type { SupabaseClient } from '../database/supabase.provider';
 import { UsersService } from '../users/users.service';
 import { PaymentProvidersService } from '../payment-providers/payment-providers.service';
 import { RawWebhookRequest } from '../payment-providers/interfaces/payment-provider.interface';
+import { NotificationsService } from '../notifications/notifications.service';
+import { TelegramService } from '../telegram/telegram.service';
 
 // Mirrors PaymentTransactionsService's webhook state machine (see that
 // file's own comments for the full phase-by-phase rationale — Click's
@@ -25,7 +27,68 @@ export class SubscriptionPaymentsService {
     @Inject(SUPABASE_CLIENT) private readonly supabase: SupabaseClient,
     private readonly providers: PaymentProvidersService,
     private readonly usersService: UsersService,
+    private readonly notificationsService: NotificationsService,
+    private readonly telegramService: TelegramService,
   ) {}
+
+  // The "contact support" hint on the blocked-but-registered screen used to
+  // be text-only — this makes it an actual action: flags the request
+  // (persisted, so it survives as a badge in /admin/users even if no admin
+  // is around right now) and notifies every admin immediately, both in-app
+  // and via Telegram (mirrors PaymentTransactionsService.notifyLender's
+  // telegram_enabled-gated pattern). Cleared the moment an admin actually
+  // activates the account — see AdminService.updateSubscriptionStatus and
+  // this service's own activateSubscription().
+  async requestCashPayment(userId: string): Promise<void> {
+    const user = await this.usersService.findById(userId);
+    if (user.account_type !== 'business' || !user.subscription_plan_months) {
+      throw new BadRequestException({
+        code: 'NOT_REGISTERED_AS_BUSINESS',
+        message: "Avval do'kon sifatida ro'yxatdan o'ting va rejani tanlang",
+      });
+    }
+
+    const { error } = await this.supabase
+      .from('users')
+      .update({ cash_payment_requested_at: new Date().toISOString() })
+      .eq('id', userId);
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+
+    const { data: admins, error: adminsError } = await this.supabase
+      .from('users')
+      .select('id, telegram_enabled')
+      .eq('role', 'admin');
+    if (adminsError) {
+      throw new InternalServerErrorException(adminsError.message);
+    }
+
+    const title = "Do'kon naqt to'lov so'radi";
+    const body = `${user.business_name ?? user.name} — ${Number(user.subscription_price).toLocaleString('uz-UZ')} so'm${
+      user.phone ? `, tel: ${user.phone}` : ''
+    }`;
+
+    for (const admin of admins ?? []) {
+      await this.notificationsService.create(
+        admin.id,
+        'cash_payment_request',
+        title,
+        body,
+      );
+      if (admin.telegram_enabled) {
+        const telegramId = await this.telegramService.findTelegramIdForUser(
+          admin.id,
+        );
+        if (telegramId) {
+          await this.telegramService.sendMessage(
+            telegramId,
+            `${title}\n\n${body}`,
+          );
+        }
+      }
+    }
+  }
 
   // Amount and plan are always read from the user's own row (set by
   // UsersService.registerBusiness) — never client-supplied at checkout time,
@@ -276,6 +339,7 @@ export class SubscriptionPaymentsService {
       .update({
         subscription_active: true,
         subscription_valid_until: next.toISOString().slice(0, 10),
+        cash_payment_requested_at: null,
       })
       .eq('id', userId);
 

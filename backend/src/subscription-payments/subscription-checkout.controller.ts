@@ -1,4 +1,4 @@
-import { Controller, Param, Post } from '@nestjs/common';
+import { Controller, HttpCode, Param, Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { SkipSubscriptionGate } from '../common/decorators/skip-subscription-gate.decorator';
@@ -31,6 +31,15 @@ export class SubscriptionCheckoutController {
       provider,
       returnUrl,
     );
+  }
+
+  @SkipSubscriptionGate()
+  @HttpCode(200)
+  @Post('cash-request')
+  requestCashPayment(@CurrentUser() user: AuthenticatedUser) {
+    return this.subscriptionPayments
+      .requestCashPayment(user.id)
+      .then(() => ({ ok: true }));
   }
 
   private frontendUrl(): string {

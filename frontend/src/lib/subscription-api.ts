@@ -34,3 +34,13 @@ export function initiateSubscriptionCheckout(
     { method: "POST", token },
   );
 }
+
+// Flags "I'll pay cash / outside the app" — notifies every admin (in-app +
+// Telegram) and leaves a persistent badge in /admin/users, instead of the
+// old passive "contact support" text with no actual action behind it.
+export function requestCashPayment(token: string) {
+  return apiFetch<{ ok: true }>("/subscription-payments/cash-request", {
+    method: "POST",
+    token,
+  });
+}

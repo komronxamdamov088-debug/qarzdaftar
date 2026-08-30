@@ -54,6 +54,7 @@ export interface Database {
           subscription_valid_until: string | null;
           subscription_plan_months: SubscriptionPlanMonths | null;
           access_override: boolean;
+          cash_payment_requested_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -74,6 +75,7 @@ export interface Database {
           subscription_valid_until?: string | null;
           subscription_plan_months?: SubscriptionPlanMonths | null;
           access_override?: boolean;
+          cash_payment_requested_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };

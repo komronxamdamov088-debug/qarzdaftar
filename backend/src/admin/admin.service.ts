@@ -42,7 +42,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 // breaks that inference and made every `.select(USER_SUMMARY_COLUMNS)` call
 // fall back to an untyped `GenericStringError` result.
 const USER_SUMMARY_COLUMNS =
-  'id, name, phone, role, account_type, business_name, subscription_active, subscription_price, subscription_discount_percent, subscription_valid_until, access_override, created_at';
+  'id, name, phone, role, account_type, business_name, subscription_active, subscription_price, subscription_discount_percent, subscription_valid_until, access_override, cash_payment_requested_at, created_at';
 
 interface UserSummaryRow {
   id: string;
@@ -56,6 +56,7 @@ interface UserSummaryRow {
   subscription_discount_percent: string;
   subscription_valid_until: string | null;
   access_override: boolean;
+  cash_payment_requested_at: string | null;
   created_at: string;
 }
 
@@ -193,6 +194,7 @@ export class AdminService {
       subscriptionDiscountPercent: user.subscription_discount_percent,
       subscriptionValidUntil: user.subscription_valid_until,
       accessOverride: user.access_override,
+      cashPaymentRequestedAt: user.cash_payment_requested_at,
     }));
   }
 
@@ -275,6 +277,8 @@ export class AdminService {
         subscription_price: 0,
         subscription_discount_percent: 0,
         subscription_valid_until: null,
+        subscription_plan_months: null,
+        cash_payment_requested_at: null,
       })
       .eq('id', targetUserId)
       .select(USER_SUMMARY_COLUMNS)
@@ -331,7 +335,12 @@ export class AdminService {
 
     const { data, error } = await this.supabase
       .from('users')
-      .update({ subscription_active: active })
+      // Activating also clears any pending cash-payment-request badge — the
+      // admin acting on it is exactly what the badge exists to prompt.
+      .update({
+        subscription_active: active,
+        ...(active && { cash_payment_requested_at: null }),
+      })
       .eq('id', targetUserId)
       .select(USER_SUMMARY_COLUMNS)
       .maybeSingle();
@@ -523,6 +532,7 @@ export class AdminService {
       subscriptionDiscountPercent: user.subscription_discount_percent,
       subscriptionValidUntil: user.subscription_valid_until,
       accessOverride: user.access_override,
+      cashPaymentRequestedAt: user.cash_payment_requested_at,
     };
   }
 

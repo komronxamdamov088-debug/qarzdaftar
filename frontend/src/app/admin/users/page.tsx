@@ -135,6 +135,12 @@ export default async function AdminUsersPage(
                     </>
                   )}
                 </span>
+                {user.cashPaymentRequestedAt && (
+                  <span className="mt-1 inline-flex w-fit items-center rounded-full bg-warning/15 px-2.5 py-1 text-xs font-medium text-warning">
+                    {dict.admin.cashPaymentRequested}{" "}
+                    {formatDate(user.cashPaymentRequestedAt, locale)}
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-col items-start gap-3 sm:items-end">
