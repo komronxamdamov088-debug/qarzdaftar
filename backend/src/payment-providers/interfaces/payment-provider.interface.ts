@@ -1,11 +1,16 @@
 import { PaymentProviderName } from '../../database/database.types';
 
 export interface CheckoutRequest {
-  /** Our own payment_transactions.id — passed through so the provider's
-   * webhook can be matched back to this transaction even before we know
-   * the provider's own transaction id. */
+  /** Our own payment_transactions.id (or subscription_transactions.id) —
+   * passed through so the provider's webhook can be matched back to this
+   * transaction even before we know the provider's own transaction id. */
   transactionId: string;
-  debtId: string;
+  /** Only set for a debt payment checkout — omitted for a subscription
+   * checkout, which has no associated debt. No provider implementation
+   * actually reads this field (confirmed: it's carried only for the debt
+   * payment flow's own bookkeeping before this request is built), so making
+   * it optional here is safe. */
+  debtId?: string;
   /** Always the server-computed remaining amount — never client-supplied. */
   amount: number;
   returnUrl: string;

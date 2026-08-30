@@ -1,27 +1,29 @@
 import { BottomNav } from "@/components/bottom-nav";
-import { SubscriptionInactive } from "@/components/subscription-inactive";
-import { ApiError } from "@/lib/api";
+import { SubscriptionGate } from "@/components/subscription-gate";
 import { getCurrentUser } from "@/lib/debts-api";
 import { getServerToken } from "@/lib/session";
+import type { CurrentUser } from "@/lib/types";
 
-// A deactivated business account (see backend JwtStrategy) gets a 403 with
-// code SUBSCRIPTION_INACTIVE on every authenticated request, including this
-// one — checked once here, in the layout shared by every protected page,
-// rather than in each page's own data-fetching branch.
-async function isSubscriptionInactive(token: string): Promise<boolean> {
-  try {
-    await getCurrentUser(token);
+// The Mini App is shop-only (see backend SubscriptionGateGuard) — every
+// protected page shares this layout, so the "you're blocked" screen is
+// rendered once here rather than in each page's own fetch/catch branch.
+// GET /users/me is itself exempt from the gate (@SkipSubscriptionGate()), so
+// this never throws for a blocked user — it always returns real data, and
+// the blocking decision is made here purely by reading account_type/
+// subscription_active/access_override off the response, the same fields the
+// backend guard itself checks.
+function isBlocked(user: CurrentUser): boolean {
+  if (user.role === "admin" || user.access_override) {
     return false;
-  } catch (error) {
-    if (!(error instanceof ApiError) || error.status !== 403) {
-      return false;
-    }
-    try {
-      const parsed = JSON.parse(error.message) as { code?: string };
-      return parsed.code === "SUBSCRIPTION_INACTIVE";
-    } catch {
-      return false;
-    }
+  }
+  return !(user.account_type === "business" && user.subscription_active);
+}
+
+async function loadCurrentUser(token: string): Promise<CurrentUser | null> {
+  try {
+    return await getCurrentUser(token);
+  } catch {
+    return null;
   }
 }
 
@@ -31,11 +33,13 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const token = await getServerToken();
-  if (token && (await isSubscriptionInactive(token))) {
+  const user = token ? await loadCurrentUser(token) : null;
+
+  if (user && isBlocked(user)) {
     return (
       <div className="flex min-h-full flex-1 flex-col">
         <div className="flex flex-1 flex-col pb-2">
-          <SubscriptionInactive />
+          <SubscriptionGate user={user} />
         </div>
       </div>
     );

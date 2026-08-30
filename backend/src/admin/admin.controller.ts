@@ -14,6 +14,7 @@ import { AdminService } from './admin.service';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { ConvertToBusinessDto } from './dto/convert-to-business.dto';
 import { UpdateSubscriptionStatusDto } from './dto/update-subscription-status.dto';
+import { UpdateAccessOverrideDto } from './dto/update-access-override.dto';
 import { UpdateSubscriptionPricingDto } from './dto/update-subscription-pricing.dto';
 import { AddSubscriptionBonusDto } from './dto/add-subscription-bonus.dto';
 import { ListUsersQueryDto } from './dto/list-users-query.dto';
@@ -80,6 +81,14 @@ export class AdminController {
     @Body() dto: AddSubscriptionBonusDto,
   ) {
     return this.adminService.addSubscriptionBonusDays(id, dto.days);
+  }
+
+  @Patch('users/:id/access-override')
+  setAccessOverride(
+    @Param('id') id: string,
+    @Body() dto: UpdateAccessOverrideDto,
+  ) {
+    return this.adminService.setAccessOverride(id, dto.override);
   }
 
   @Get('reports')

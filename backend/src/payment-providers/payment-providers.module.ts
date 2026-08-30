@@ -37,6 +37,6 @@ import { PublicPaymentCheckoutController } from './public-payment-checkout.contr
     PaymentProvidersService,
     PaymentTransactionsService,
   ],
-  exports: [PaymentTransactionsService],
+  exports: [PaymentTransactionsService, PaymentProvidersService],
 })
 export class PaymentProvidersModule {}

@@ -42,7 +42,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 // breaks that inference and made every `.select(USER_SUMMARY_COLUMNS)` call
 // fall back to an untyped `GenericStringError` result.
 const USER_SUMMARY_COLUMNS =
-  'id, name, phone, role, account_type, business_name, subscription_active, subscription_price, subscription_discount_percent, subscription_valid_until, created_at';
+  'id, name, phone, role, account_type, business_name, subscription_active, subscription_price, subscription_discount_percent, subscription_valid_until, access_override, created_at';
 
 interface UserSummaryRow {
   id: string;
@@ -55,6 +55,7 @@ interface UserSummaryRow {
   subscription_price: string;
   subscription_discount_percent: string;
   subscription_valid_until: string | null;
+  access_override: boolean;
   created_at: string;
 }
 
@@ -191,6 +192,7 @@ export class AdminService {
       subscriptionPrice: user.subscription_price,
       subscriptionDiscountPercent: user.subscription_discount_percent,
       subscriptionValidUntil: user.subscription_valid_until,
+      accessOverride: user.access_override,
     }));
   }
 
@@ -274,6 +276,33 @@ export class AdminService {
         subscription_discount_percent: 0,
         subscription_valid_until: null,
       })
+      .eq('id', targetUserId)
+      .select(USER_SUMMARY_COLUMNS)
+      .maybeSingle();
+
+    if (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+    if (!data) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+
+    return this.toUserSummary(data);
+  }
+
+  // The manual exemption that keeps a specific account working regardless of
+  // account_type/subscription_active — see SubscriptionGateGuard. Its main
+  // use is grandfathering a pre-existing personal account (a real
+  // friend/family user from before the app became shop-only) without
+  // forcing them to become a business, but nothing stops it being used on a
+  // business account too (e.g. a shop the owner wants to keep free).
+  async setAccessOverride(
+    targetUserId: string,
+    override: boolean,
+  ): Promise<AdminUserSummary> {
+    const { data, error } = await this.supabase
+      .from('users')
+      .update({ access_override: override })
       .eq('id', targetUserId)
       .select(USER_SUMMARY_COLUMNS)
       .maybeSingle();
@@ -493,6 +522,7 @@ export class AdminService {
       subscriptionPrice: user.subscription_price,
       subscriptionDiscountPercent: user.subscription_discount_percent,
       subscriptionValidUntil: user.subscription_valid_until,
+      accessOverride: user.access_override,
     };
   }
 

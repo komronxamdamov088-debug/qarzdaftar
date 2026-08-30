@@ -16,4 +16,5 @@ export interface AdminUserSummary {
   subscriptionPrice: string;
   subscriptionDiscountPercent: string;
   subscriptionValidUntil: string | null;
+  accessOverride: boolean;
 }

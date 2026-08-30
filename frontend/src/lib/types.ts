@@ -67,6 +67,8 @@ export interface UpdateDebtInput {
   note?: string;
 }
 
+export type SubscriptionPlanMonths = 1 | 2;
+
 export interface CurrentUser {
   id: string;
   name: string;
@@ -77,9 +79,13 @@ export interface CurrentUser {
   telegram_enabled: boolean;
   locale: "uz" | "ru";
   account_type: AccountType;
+  business_name: string | null;
+  subscription_active: boolean;
   subscription_price: string;
   subscription_discount_percent: string;
   subscription_valid_until: string | null;
+  subscription_plan_months: SubscriptionPlanMonths | null;
+  access_override: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -227,6 +233,7 @@ export interface AdminUserSummary {
   subscriptionPrice: string;
   subscriptionDiscountPercent: string;
   subscriptionValidUntil: string | null;
+  accessOverride: boolean;
 }
 
 export interface AdminReports {

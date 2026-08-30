@@ -6,6 +6,7 @@ import {
   addAdminUserSubscriptionBonus,
   convertAdminUserToBusiness,
   revertAdminUserToPersonal,
+  updateAdminUserAccessOverride,
   updateAdminUserRole,
   updateAdminUserSubscriptionPricing,
   updateAdminUserSubscriptionStatus,
@@ -112,6 +113,33 @@ export async function revertToPersonalAction(
       message: extractApiErrorMessage(
         error,
         dict.admin.businessUpdateError,
+        dict.apiErrors,
+      ),
+    };
+  }
+
+  revalidatePath("/admin/users");
+  return { ok: true };
+}
+
+export async function updateAccessOverrideAction(
+  userId: string,
+  override: boolean,
+): Promise<{ ok: false; message: string } | { ok: true }> {
+  const dict = getDictionary(await getLocale());
+  const token = await getServerToken();
+  if (!token) {
+    return { ok: false, message: dict.apiErrors.AUTH_REQUIRED };
+  }
+
+  try {
+    await updateAdminUserAccessOverride(token, userId, override);
+  } catch (error) {
+    return {
+      ok: false,
+      message: extractApiErrorMessage(
+        error,
+        dict.admin.accessOverrideError,
         dict.apiErrors,
       ),
     };

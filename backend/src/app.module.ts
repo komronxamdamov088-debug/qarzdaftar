@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
+import { SubscriptionGateGuard } from './common/guards/subscription-gate.guard';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { DebtsModule } from './debts/debts.module';
@@ -20,6 +21,7 @@ import { AdminModule } from './admin/admin.module';
 import { StatsModule } from './stats/stats.module';
 import { ReceiptsModule } from './receipts/receipts.module';
 import { PaymentProvidersModule } from './payment-providers/payment-providers.module';
+import { SubscriptionPaymentsModule } from './subscription-payments/subscription-payments.module';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
@@ -41,6 +43,7 @@ import { DatabaseModule } from './database/database.module';
     StatsModule,
     ReceiptsModule,
     PaymentProvidersModule,
+    SubscriptionPaymentsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -51,6 +54,7 @@ import { DatabaseModule } from './database/database.module';
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_GUARD, useClass: SubscriptionGateGuard },
   ],
 })
 export class AppModule {}

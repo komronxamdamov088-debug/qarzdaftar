@@ -31,6 +31,8 @@ export type PaymentMethod = 'cash' | PaymentProviderName;
 export type PaymentTransactionStatus =
   'pending' | 'success' | 'failed' | 'cancelled';
 
+export type SubscriptionPlanMonths = 1 | 2;
+
 export interface Database {
   public: {
     Tables: {
@@ -50,6 +52,8 @@ export interface Database {
           subscription_price: string;
           subscription_discount_percent: string;
           subscription_valid_until: string | null;
+          subscription_plan_months: SubscriptionPlanMonths | null;
+          access_override: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -68,6 +72,8 @@ export interface Database {
           subscription_price?: number;
           subscription_discount_percent?: number;
           subscription_valid_until?: string | null;
+          subscription_plan_months?: SubscriptionPlanMonths | null;
+          access_override?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -167,6 +173,40 @@ export interface Database {
         };
         Update: Partial<
           Database['public']['Tables']['payment_transactions']['Insert']
+        >;
+        Relationships: [];
+      };
+      subscription_transactions: {
+        Row: {
+          id: string;
+          user_id: string;
+          provider: PaymentProviderName;
+          provider_transaction_id: string | null;
+          plan_months: SubscriptionPlanMonths;
+          amount: string;
+          status: PaymentTransactionStatus;
+          checkout_url: string | null;
+          raw_webhook_payload: Record<string, unknown> | null;
+          error_message: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          provider: PaymentProviderName;
+          provider_transaction_id?: string | null;
+          plan_months: SubscriptionPlanMonths;
+          amount: number;
+          status?: PaymentTransactionStatus;
+          checkout_url?: string | null;
+          raw_webhook_payload?: Record<string, unknown> | null;
+          error_message?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Database['public']['Tables']['subscription_transactions']['Insert']
         >;
         Relationships: [];
       };

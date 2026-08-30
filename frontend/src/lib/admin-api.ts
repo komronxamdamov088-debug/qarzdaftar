@@ -77,6 +77,18 @@ export function revertAdminUserToPersonal(token: string, userId: string) {
   });
 }
 
+export function updateAdminUserAccessOverride(
+  token: string,
+  userId: string,
+  override: boolean,
+) {
+  return apiFetch<AdminUserSummary>(`/admin/users/${userId}/access-override`, {
+    method: "PATCH",
+    body: { override },
+    token,
+  });
+}
+
 export function addAdminUserSubscriptionBonus(
   token: string,
   userId: string,

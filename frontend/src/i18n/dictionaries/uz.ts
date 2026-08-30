@@ -29,10 +29,26 @@ const uzDictionary = {
     description:
       "Bu sahifani ko'rish uchun avval hisobingizga kiring. Telefon/OTP va Telegram orqali kirish tez orada faollashtiriladi.",
   },
-  subscriptionInactive: {
-    title: "Obuna faol emas",
-    description:
-      "Hisobingiz uchun oylik obuna hozircha faol emas. Ilovadan foydalanishni davom ettirish uchun administrator bilan bog'laning.",
+  subscriptionGate: {
+    blockedTitle: "Bu ilova hozircha faqat do'konlar uchun",
+    blockedDescription:
+      "QarzDaftar Mini App'idan foydalanish uchun do'kon sifatida ro'yxatdan o'ting va obuna rejasini tanlang.",
+    registerTitle: "Do'kon sifatida ro'yxatdan o'tish",
+    registerDescription: "Do'kon nomini kiriting va obuna rejasini tanlang.",
+    businessNamePlaceholder: "Do'kon nomi",
+    businessNameRequired: "Do'kon nomini kiriting.",
+    phonePlaceholder: "Telefon raqami (ixtiyoriy)",
+    plan1Month: "1 oylik obuna",
+    plan2Months: "2 oylik obuna",
+    discountLabel: "chegirma",
+    registerButton: "Davom etish",
+    registerError: "Ro'yxatdan o'tishda xatolik yuz berdi.",
+    pendingTitle: "To'lovni yakunlang",
+    pendingDescription:
+      "Hisobingiz faollashtirilishi uchun tanlangan reja bo'yicha to'lovni amalga oshiring.",
+    checkoutError: "To'lovni boshlashda xatolik yuz berdi.",
+    supportHint:
+      "Naqd yoki boshqa usulda to'lamoqchi bo'lsangiz, bizning administratorimizga murojaat qiling — u to'lovni qabul qilib, hisobingizni qo'lda faollashtiradi.",
   },
   promoBanner: {
     title: "Sizga aksiya taqdim etildi",
@@ -294,16 +310,10 @@ const uzDictionary = {
       "Yangi do'kon qo'shish uchun ularni ism yoki telefon bo'yicha qidiring.",
     noBusinessAccounts: "Hozircha faol do'kon hisoblari yo'q",
     noSearchResults: "Hech narsa topilmadi",
-    tableName: "Ism",
     tablePhone: "Telefon",
-    tableRole: "Rol",
-    tableAccountType: "Hisob turi",
     tableTelegram: "Telegram",
-    tableCreatedAt: "Ro'yxatdan o'tgan",
     roleAdmin: "Admin",
     roleUser: "Foydalanuvchi",
-    accountTypePersonal: "Shaxsiy",
-    accountTypeBusiness: "Do'kon",
     telegramConnected: "Ulangan",
     telegramNotConnected: "Ulanmagan",
     promote: "Admin qilish",
@@ -325,6 +335,11 @@ const uzDictionary = {
     subscriptionBonusDaysInvalid: "Kunlar soni musbat butun son bo'lishi kerak.",
     revertToPersonal: "Shaxsiy hisobga qaytarish",
     confirmRevertToPersonal: "Tasdiqlash",
+    accessOverrideGrant: "Kirishga ruxsat berish",
+    accessOverrideRevoke: "Ruxsatni bekor qilish",
+    accessOverrideHint: "Do'kon/obunasiz ham ilovadan foydalanishga ruxsat",
+    accessOverrideActive: "Ruxsat berilgan",
+    accessOverrideError: "Ruxsatni yangilashda xatolik yuz berdi.",
   },
   debtStatus: {
     pending: "Kutilmoqda",
@@ -398,6 +413,9 @@ const uzDictionary = {
     PROVIDER_NOT_FOUND: "To'lov usuli topilmadi.",
     RECEIPT_NOT_FOUND: "Chek topilmadi.",
     SUBSCRIPTION_INACTIVE: "Obuna faol emas. Administrator bilan bog'laning.",
+    ACCESS_RESTRICTED: "Bu ilova hozircha faqat obunasi faol do'konlar uchun mavjud.",
+    NOT_REGISTERED_AS_BUSINESS:
+      "Avval do'kon sifatida ro'yxatdan o'ting va rejani tanlang.",
     GENERIC: "Kutilmagan xatolik yuz berdi.",
   },
 };

@@ -31,10 +31,26 @@ const ruDictionary: Dictionary = {
     description:
       "Чтобы увидеть эту страницу, сначала войдите в аккаунт. Вход по телефону/OTP и через Telegram скоро будет доступен.",
   },
-  subscriptionInactive: {
-    title: "Подписка неактивна",
-    description:
-      "Ежемесячная подписка для вашего аккаунта сейчас неактивна. Чтобы продолжить пользоваться приложением, свяжитесь с администратором.",
+  subscriptionGate: {
+    blockedTitle: "Сейчас приложение доступно только магазинам",
+    blockedDescription:
+      "Чтобы пользоваться QarzDaftar Mini App, зарегистрируйтесь как магазин и выберите план подписки.",
+    registerTitle: "Регистрация магазина",
+    registerDescription: "Введите название магазина и выберите план подписки.",
+    businessNamePlaceholder: "Название магазина",
+    businessNameRequired: "Введите название магазина.",
+    phonePlaceholder: "Номер телефона (необязательно)",
+    plan1Month: "Подписка на 1 месяц",
+    plan2Months: "Подписка на 2 месяца",
+    discountLabel: "скидка",
+    registerButton: "Продолжить",
+    registerError: "Ошибка при регистрации.",
+    pendingTitle: "Завершите оплату",
+    pendingDescription:
+      "Чтобы активировать аккаунт, оплатите выбранный план подписки.",
+    checkoutError: "Ошибка при запуске оплаты.",
+    supportHint:
+      "Если хотите оплатить наличными или другим способом, свяжитесь с нашим администратором — он примет оплату и вручную активирует ваш аккаунт.",
   },
   promoBanner: {
     title: "Для вас действует акция",
@@ -296,16 +312,10 @@ const ruDictionary: Dictionary = {
       "Чтобы добавить новый магазин, найдите его по имени или телефону.",
     noBusinessAccounts: "Пока нет активных магазинов",
     noSearchResults: "Ничего не найдено",
-    tableName: "Имя",
     tablePhone: "Телефон",
-    tableRole: "Роль",
-    tableAccountType: "Тип аккаунта",
     tableTelegram: "Telegram",
-    tableCreatedAt: "Дата регистрации",
     roleAdmin: "Администратор",
     roleUser: "Пользователь",
-    accountTypePersonal: "Личный",
-    accountTypeBusiness: "Магазин",
     telegramConnected: "Подключён",
     telegramNotConnected: "Не подключён",
     promote: "Сделать админом",
@@ -327,6 +337,11 @@ const ruDictionary: Dictionary = {
     subscriptionBonusDaysInvalid: "Количество дней должно быть положительным целым числом.",
     revertToPersonal: "Вернуть в личный аккаунт",
     confirmRevertToPersonal: "Подтвердить",
+    accessOverrideGrant: "Разрешить доступ",
+    accessOverrideRevoke: "Отозвать разрешение",
+    accessOverrideHint: "Доступ к приложению без магазина/подписки",
+    accessOverrideActive: "Доступ разрешён",
+    accessOverrideError: "Ошибка при изменении разрешения.",
   },
   debtStatus: {
     pending: "Ожидается",
@@ -400,6 +415,10 @@ const ruDictionary: Dictionary = {
     RECEIPT_NOT_FOUND: "Чек не найден.",
     SUBSCRIPTION_INACTIVE:
       "Подписка неактивна. Свяжитесь с администратором.",
+    ACCESS_RESTRICTED:
+      "Сейчас приложение доступно только магазинам с активной подпиской.",
+    NOT_REGISTERED_AS_BUSINESS:
+      "Сначала зарегистрируйтесь как магазин и выберите план.",
     GENERIC: "Произошла непредвиденная ошибка.",
   },
 };

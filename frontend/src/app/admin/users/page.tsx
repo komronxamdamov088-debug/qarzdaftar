@@ -8,6 +8,7 @@ import { getLocale } from "@/i18n/get-locale";
 import { getDictionary } from "@/i18n/dictionaries";
 import { RoleToggleButton } from "./role-toggle-button";
 import { BusinessStatusControl } from "./business-status-control";
+import { AccessOverrideToggle } from "./access-override-toggle";
 
 async function loadUsers(
   token: string,
@@ -91,77 +92,67 @@ export default async function AdminUsersPage(
           {search ? dict.admin.noSearchResults : dict.admin.noBusinessAccounts}
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-xl bg-card shadow-sm">
-          <table className="w-full min-w-[820px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-black/5 text-xs text-muted-foreground">
-                <th className="px-4 py-3 font-medium">{dict.admin.tableName}</th>
-                <th className="px-4 py-3 font-medium">
-                  {dict.admin.tablePhone}
-                </th>
-                <th className="px-4 py-3 font-medium">
-                  {dict.admin.tableTelegram}
-                </th>
-                <th className="px-4 py-3 font-medium">{dict.admin.tableRole}</th>
-                <th className="px-4 py-3 font-medium">
-                  {dict.admin.tableCreatedAt}
-                </th>
-                <th className="px-4 py-3 font-medium"></th>
-                <th className="px-4 py-3 font-medium"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr
-                  key={user.id}
-                  className="border-b border-black/5 last:border-0"
-                >
-                  <td className="px-4 py-3">
-                    {user.accountType === "business" ? (
-                      <div className="flex flex-col">
-                        <span className="font-medium">
-                          {user.businessName}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {user.name}
-                        </span>
-                      </div>
-                    ) : (
-                      user.name
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {user.phone ?? "—"}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {user.telegramUsername
-                      ? `@${user.telegramUsername}`
-                      : user.telegramConnected
-                        ? dict.admin.telegramConnected
-                        : dict.admin.telegramNotConnected}
-                  </td>
-                  <td className="px-4 py-3">
-                    {user.role === "admin"
-                      ? dict.admin.roleAdmin
-                      : dict.admin.roleUser}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {formatDate(user.createdAt, locale)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <RoleToggleButton
-                      userId={user.id}
-                      role={user.role}
-                      disabled={user.id === currentUser.id}
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <BusinessStatusControl user={user} locale={locale} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="flex flex-col gap-3">
+          {users.map((user) => (
+            <div
+              key={user.id}
+              className="flex flex-col gap-4 rounded-2xl bg-card p-4 shadow-sm sm:flex-row sm:items-start sm:justify-between"
+            >
+              <div className="flex flex-col gap-1">
+                {user.accountType === "business" ? (
+                  <span className="text-sm font-semibold">
+                    {user.businessName}
+                    <span className="ml-2 font-normal text-muted-foreground">
+                      {user.name}
+                    </span>
+                  </span>
+                ) : (
+                  <span className="text-sm font-semibold">{user.name}</span>
+                )}
+                <span className="text-xs text-muted-foreground">
+                  {dict.admin.tablePhone}: {user.phone ?? "—"}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {dict.admin.tableTelegram}:{" "}
+                  {user.telegramUsername
+                    ? `@${user.telegramUsername}`
+                    : user.telegramConnected
+                      ? dict.admin.telegramConnected
+                      : dict.admin.telegramNotConnected}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {user.role === "admin"
+                    ? dict.admin.roleAdmin
+                    : dict.admin.roleUser}
+                  {" · "}
+                  {formatDate(user.createdAt, locale)}
+                  {user.accessOverride && (
+                    <>
+                      {" · "}
+                      <span className="text-success">
+                        {dict.admin.accessOverrideActive}
+                      </span>
+                    </>
+                  )}
+                </span>
+              </div>
+
+              <div className="flex flex-col items-start gap-3 sm:items-end">
+                <div className="flex flex-wrap items-start gap-2">
+                  <RoleToggleButton
+                    userId={user.id}
+                    role={user.role}
+                    disabled={user.id === currentUser.id}
+                  />
+                  <AccessOverrideToggle
+                    userId={user.id}
+                    active={user.accessOverride}
+                  />
+                </div>
+                <BusinessStatusControl user={user} locale={locale} />
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
