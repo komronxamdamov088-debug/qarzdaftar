@@ -30,6 +30,8 @@ interface NotificationsDictionary {
   reminderBody: (counterpartyName: string, amount: string) => string;
   paymentReceivedTitle: string;
   paymentReceivedBody: (payerName: string, amount: string) => string;
+  debtorReminderTitle: string;
+  debtorReminderBody: (lenderName: string, amount: string) => string;
 }
 
 const NOTIFICATIONS_I18N: Record<UserLocale, NotificationsDictionary> = {
@@ -40,6 +42,9 @@ const NOTIFICATIONS_I18N: Record<UserLocale, NotificationsDictionary> = {
     paymentReceivedTitle: "To'lov qabul qilindi",
     paymentReceivedBody: (payerName, amount) =>
       `${payerName} sizga ${amount} to'lov qildi.`,
+    debtorReminderTitle: "To'lov eslatmasi",
+    debtorReminderBody: (lenderName, amount) =>
+      `Salom! ${lenderName} bilan bo'lgan ${amount} miqdoridagi qarzingizni to'lash muddati yaqinlashmoqda.`,
   },
   ru: {
     reminderTitle: 'Напоминание о долге',
@@ -48,6 +53,9 @@ const NOTIFICATIONS_I18N: Record<UserLocale, NotificationsDictionary> = {
     paymentReceivedTitle: 'Платёж получен',
     paymentReceivedBody: (payerName, amount) =>
       `${payerName} оплатил(а) вам ${amount}.`,
+    debtorReminderTitle: 'Напоминание об оплате',
+    debtorReminderBody: (lenderName, amount) =>
+      `Здравствуйте! Приближается срок оплаты долга перед ${lenderName} на сумму ${amount}.`,
   },
 };
 

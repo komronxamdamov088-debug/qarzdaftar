@@ -176,6 +176,23 @@ export default async function DebtDetailPage(props: PageProps<"/debts/[id]">) {
         </section>
       )}
 
+      {iGave && (
+        <section className="flex flex-col gap-2 rounded-xl bg-card px-4 py-4 shadow-sm">
+          <h2 className="text-sm font-medium text-muted-foreground">
+            {dict.telegramLinkDebtor.title}
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            {dict.telegramLinkDebtor.description}
+          </p>
+          <div className="flex justify-end">
+            <ShareDebtLinkButton
+              url={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME ?? ""}?startapp=claim-${debt.confirmation_token}`}
+              text={dict.telegramLinkDebtor.shareMessage(debt.borrower.name)}
+            />
+          </div>
+        </section>
+      )}
+
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-medium text-muted-foreground">
           {dict.debtDetail.payments}

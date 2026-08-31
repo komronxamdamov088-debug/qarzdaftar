@@ -20,6 +20,14 @@ function routeForStartParam(startParam: string | undefined): string {
   if (payMatch && UUID_RE.test(payMatch[1])) {
     return `/debts/${payMatch[1]}?openPayment=1`;
   }
+  // Claiming links a debtor's placeholder account to their real Telegram
+  // identity (see backend AuthService.loginWithTelegram) — the resulting
+  // account is personal, not a business account, so it must never be routed
+  // into the gated app shell (SubscriptionGateGuard would 403 it). Land on a
+  // static, ungated confirmation page instead.
+  if (/^claim-(.+)$/.test(startParam)) {
+    return "/telegram-linked";
+  }
   return "/dashboard";
 }
 

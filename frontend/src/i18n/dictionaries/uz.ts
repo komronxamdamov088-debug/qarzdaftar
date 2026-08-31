@@ -152,6 +152,18 @@ const uzDictionary = {
     message: (name: string, amount: string) =>
       `QarzDaftar: ${name} — ${amount}`,
   },
+  telegramLinkDebtor: {
+    title: "Mijozni Telegramga ulash",
+    description:
+      "Mijoz shu havolani ochsa, to'lov muddati yaqinlashganda unga Telegram orqali eslatma boradi.",
+    button: "Telegram orqali ulash",
+    shareMessage: (name: string) =>
+      `QarzDaftar: to'lov eslatmalarini olish uchun shu havolani oching, ${name}.`,
+  },
+  telegramLinked: {
+    title: "Ulandingiz!",
+    body: "Endi to'lov eslatmalarini shu yerda, Telegram orqali olasiz.",
+  },
   deleteDebt: {
     toggle: "O'chirish",
     cancel: "Bekor qilish",

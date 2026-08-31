@@ -67,6 +67,80 @@ export class TelegramService {
     return createdUser;
   }
 
+  // Links a customer's real Telegram identity to their existing placeholder
+  // user row (created by a shop via UsersService.findOrCreateCounterparty
+  // when they added a debt) instead of always spawning a new, disconnected
+  // user the way findOrCreateUserByTelegramId does. Reached only via a
+  // t.me/<bot>?startapp=claim-<confirmation_token> deep link the shop shares
+  // with that specific customer — see AuthService.loginWithTelegram.
+  async linkOrCreateForClaim(
+    telegramId: number,
+    name: string,
+    username: string | undefined,
+    borrowerId: string,
+  ): Promise<User> {
+    const { data: existingConnection, error: lookupError } = await this.supabase
+      .from('telegram_connections')
+      .select('user:users(*)')
+      .eq('telegram_id', telegramId)
+      .maybeSingle();
+
+    if (lookupError) {
+      throw new InternalServerErrorException(lookupError.message);
+    }
+    if (existingConnection?.user) {
+      // This Telegram account is already a known QarzDaftar user — log them
+      // into their own existing account rather than claiming on top of it.
+      return existingConnection.user as unknown as User;
+    }
+
+    const { data: borrowerConnection, error: borrowerLookupError } =
+      await this.supabase
+        .from('telegram_connections')
+        .select('user_id')
+        .eq('user_id', borrowerId)
+        .maybeSingle();
+
+    if (borrowerLookupError) {
+      throw new InternalServerErrorException(borrowerLookupError.message);
+    }
+    if (borrowerConnection) {
+      // The placeholder was already claimed (e.g. the link was re-tapped by
+      // someone else) — never steal an existing claim. Fall back to an
+      // ordinary login for whoever is tapping the link now.
+      return this.findOrCreateUserByTelegramId(telegramId, name, username);
+    }
+
+    const { error: insertConnectionError } = await this.supabase
+      .from('telegram_connections')
+      .insert({
+        user_id: borrowerId,
+        telegram_id: telegramId,
+        username: username ?? null,
+      });
+
+    if (insertConnectionError) {
+      // e.g. a concurrent claim raced us on the telegram_id unique
+      // constraint — claiming must never break login, so fall back.
+      this.logger.warn(
+        `Claim link failed for borrower ${borrowerId}: ${insertConnectionError.message}`,
+      );
+      return this.findOrCreateUserByTelegramId(telegramId, name, username);
+    }
+
+    const { data: linkedUser, error: updateError } = await this.supabase
+      .from('users')
+      .update({ telegram_enabled: true })
+      .eq('id', borrowerId)
+      .select('*')
+      .single();
+
+    if (updateError) {
+      throw new InternalServerErrorException(updateError.message);
+    }
+    return linkedUser;
+  }
+
   async findTelegramIdForUser(userId: string): Promise<number | null> {
     const { data, error } = await this.supabase
       .from('telegram_connections')

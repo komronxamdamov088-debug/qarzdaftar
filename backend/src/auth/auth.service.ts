@@ -6,7 +6,10 @@ import {
   VerifiedTelegramInitData,
   verifyTelegramInitData,
 } from '../telegram/telegram-init-data';
+import { DebtsService } from '../debts/debts.service';
 import { JwtPayload } from './types/authenticated-user.interface';
+
+const CLAIM_START_PARAM_RE = /^claim-([0-9a-f-]{36})$/i;
 
 export interface AuthResult {
   accessToken: string;
@@ -25,6 +28,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
     private readonly telegramService: TelegramService,
+    private readonly debtsService: DebtsService,
   ) {}
 
   async loginWithTelegram(initData: string): Promise<AuthResult> {
@@ -44,11 +48,32 @@ export class AuthService {
       .filter(Boolean)
       .join(' ');
 
-    const user = await this.telegramService.findOrCreateUserByTelegramId(
-      tgUser.id,
-      name,
-      tgUser.username,
-    );
+    const claimMatch = startParam
+      ? CLAIM_START_PARAM_RE.exec(startParam)
+      : null;
+    const user = claimMatch
+      ? await this.debtsService
+          .findByToken(claimMatch[1])
+          .then((debt) =>
+            this.telegramService.linkOrCreateForClaim(
+              tgUser.id,
+              name,
+              tgUser.username,
+              debt.borrower_id,
+            ),
+          )
+          .catch(() =>
+            this.telegramService.findOrCreateUserByTelegramId(
+              tgUser.id,
+              name,
+              tgUser.username,
+            ),
+          )
+      : await this.telegramService.findOrCreateUserByTelegramId(
+          tgUser.id,
+          name,
+          tgUser.username,
+        );
 
     const payload: JwtPayload = { sub: user.id, role: user.role };
     const accessToken = this.jwtService.sign(payload);

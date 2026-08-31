@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { extractApiErrorMessage } from "@/lib/api";
-import { confirmPublicDebt } from "@/lib/debts-api";
+import { confirmPublicDebtAction } from "./actions";
 import type { ConfirmationStatus } from "@/lib/types";
 import { useTranslations } from "@/i18n/locale-context";
 
@@ -36,17 +35,11 @@ export function ConfirmActions({
   function act(action: "confirm" | "reject") {
     setError(null);
     startTransition(async () => {
-      try {
-        await confirmPublicDebt(token, action);
+      const result = await confirmPublicDebtAction(token, action);
+      if (result.ok) {
         setStatus(action === "confirm" ? "confirmed" : "rejected");
-      } catch (err) {
-        setError(
-          extractApiErrorMessage(
-            err,
-            dict.confirmActions.genericError,
-            dict.apiErrors,
-          ),
-        );
+      } else {
+        setError(result.message);
       }
     });
   }

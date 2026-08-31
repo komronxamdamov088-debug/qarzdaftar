@@ -7,6 +7,7 @@ import { UsersService } from '../users/users.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PushService } from '../push/push.service';
 import { TelegramService } from '../telegram/telegram.service';
+import { DebtWithParties } from '../debts/entities/debt.entity';
 import { Reminder } from './entities/reminder.entity';
 import {
   formatSom,
@@ -86,6 +87,8 @@ export class ReminderSchedulerService {
         }
       }
 
+      await this.notifyDebtorToPay(debt, reminder.user_id);
+
       await this.supabase
         .from('reminders')
         .update({ status: 'sent' })
@@ -99,5 +102,44 @@ export class ReminderSchedulerService {
         .update({ status: 'failed' })
         .eq('id', reminder.id);
     }
+  }
+
+  // Reminders were previously only ever a self-reminder for whoever created
+  // them (the shop owner). This extends the same "due" event to also nudge
+  // the actual debtor to pay — but only once they've linked their Telegram
+  // account via the claim deep-link (see TelegramService.linkOrCreateForClaim),
+  // since a never-logged-in placeholder customer has no reachable channel.
+  // Telegram-only: a placeholder customer has no push subscription, and
+  // can't reach /activity (SubscriptionGateGuard blocks personal accounts),
+  // so there's no in-app notification or push attempt here.
+  private async notifyDebtorToPay(
+    debt: DebtWithParties,
+    reminderCreatorId: string,
+  ): Promise<void> {
+    const debtorId = debt.borrower_id;
+    if (!debtorId || debtorId === reminderCreatorId) {
+      return;
+    }
+
+    const debtor = await this.usersService.findById(debtorId).catch(() => null);
+    if (!debtor?.telegram_enabled) {
+      return;
+    }
+
+    const debtorTelegramId =
+      await this.telegramService.findTelegramIdForUser(debtorId);
+    if (!debtorTelegramId) {
+      return;
+    }
+
+    const debtorI18n = getNotificationsI18n(debtor.locale);
+    const debtorBody = debtorI18n.debtorReminderBody(
+      debt.lender.name,
+      formatSom(debt.remaining_amount, debtor.locale),
+    );
+    await this.telegramService.sendMessage(
+      debtorTelegramId,
+      `${debtorI18n.debtorReminderTitle}\n\n${debtorBody}`,
+    );
   }
 }

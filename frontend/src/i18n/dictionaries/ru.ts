@@ -154,6 +154,18 @@ const ruDictionary: Dictionary = {
     message: (name: string, amount: string) =>
       `QarzDaftar: ${name} — ${amount}`,
   },
+  telegramLinkDebtor: {
+    title: "Подключить клиента к Telegram",
+    description:
+      "Если клиент откроет эту ссылку, при приближении срока оплаты ему придёт напоминание в Telegram.",
+    button: "Подключить через Telegram",
+    shareMessage: (name: string) =>
+      `QarzDaftar: откройте эту ссылку, чтобы получать напоминания об оплате, ${name}.`,
+  },
+  telegramLinked: {
+    title: "Вы подключены!",
+    body: "Теперь вы будете получать напоминания об оплате здесь, в Telegram.",
+  },
   deleteDebt: {
     toggle: "Удалить",
     cancel: "Отмена",
