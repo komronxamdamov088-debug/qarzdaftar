@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "@/i18n/locale-context";
 import { updateAccessOverrideAction } from "./actions";
+import type { AdminUserSummary } from "@/lib/types";
 
 // Grants/revokes access_override — the manual exemption that lets a user
 // keep using the app without being a business with an active subscription.
@@ -12,9 +13,11 @@ import { updateAccessOverrideAction } from "./actions";
 export function AccessOverrideToggle({
   userId,
   active,
+  onUpdate,
 }: {
   userId: string;
   active: boolean;
+  onUpdate: (user: AdminUserSummary) => void;
 }) {
   const { dict } = useTranslations();
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +29,9 @@ export function AccessOverrideToggle({
       const result = await updateAccessOverrideAction(userId, !active);
       if (!result.ok) {
         setError(result.message);
+        return;
       }
+      onUpdate(result.user);
     });
   }
 

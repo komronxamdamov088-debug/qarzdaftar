@@ -16,9 +16,11 @@ import {
 export function BusinessStatusControl({
   user,
   locale,
+  onUpdate,
 }: {
   user: AdminUserSummary;
   locale: Locale;
+  onUpdate: (user: AdminUserSummary) => void;
 }) {
   const { dict } = useTranslations();
   const [isPending, startTransition] = useTransition();
@@ -41,6 +43,7 @@ export function BusinessStatusControl({
         setError(result.message);
         return;
       }
+      onUpdate(result.user);
       setShowForm(false);
     });
   }
@@ -54,7 +57,9 @@ export function BusinessStatusControl({
       );
       if (!result.ok) {
         setError(result.message);
+        return;
       }
+      onUpdate(result.user);
     });
   }
 
@@ -85,6 +90,7 @@ export function BusinessStatusControl({
         setError(result.message);
         return;
       }
+      onUpdate(result.user);
       setEditingPricing(false);
     });
   }
@@ -95,7 +101,9 @@ export function BusinessStatusControl({
       const result = await revertToPersonalAction(user.id);
       if (!result.ok) {
         setError(result.message);
+        return;
       }
+      onUpdate(result.user);
     });
   }
 
@@ -110,7 +118,9 @@ export function BusinessStatusControl({
       const result = await addSubscriptionBonusAction(user.id, days);
       if (!result.ok) {
         setError(result.message);
+        return;
       }
+      onUpdate(result.user);
     });
   }
 

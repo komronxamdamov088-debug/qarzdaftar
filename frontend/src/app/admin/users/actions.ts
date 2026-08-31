@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { extractApiErrorMessage } from "@/lib/api";
 import {
   addAdminUserSubscriptionBonus,
@@ -14,11 +13,16 @@ import {
 import { getServerToken } from "@/lib/session";
 import { getLocale } from "@/i18n/get-locale";
 import { getDictionary } from "@/i18n/dictionaries";
+import type { AdminUserSummary } from "@/lib/types";
+
+type ActionResult =
+  | { ok: false; message: string }
+  | { ok: true; user: AdminUserSummary };
 
 export async function updateUserRoleAction(
   userId: string,
   role: "user" | "admin",
-): Promise<{ ok: false; message: string } | { ok: true }> {
+): Promise<ActionResult> {
   const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
@@ -26,7 +30,8 @@ export async function updateUserRoleAction(
   }
 
   try {
-    await updateAdminUserRole(token, userId, role);
+    const user = await updateAdminUserRole(token, userId, role);
+    return { ok: true, user };
   } catch (error) {
     return {
       ok: false,
@@ -37,15 +42,12 @@ export async function updateUserRoleAction(
       ),
     };
   }
-
-  revalidatePath("/admin/users");
-  return { ok: true };
 }
 
 export async function convertToBusinessAction(
   userId: string,
   businessName: string,
-): Promise<{ ok: false; message: string } | { ok: true }> {
+): Promise<ActionResult> {
   const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
@@ -53,7 +55,8 @@ export async function convertToBusinessAction(
   }
 
   try {
-    await convertAdminUserToBusiness(token, userId, businessName);
+    const user = await convertAdminUserToBusiness(token, userId, businessName);
+    return { ok: true, user };
   } catch (error) {
     return {
       ok: false,
@@ -64,15 +67,12 @@ export async function convertToBusinessAction(
       ),
     };
   }
-
-  revalidatePath("/admin/users");
-  return { ok: true };
 }
 
 export async function updateSubscriptionStatusAction(
   userId: string,
   active: boolean,
-): Promise<{ ok: false; message: string } | { ok: true }> {
+): Promise<ActionResult> {
   const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
@@ -80,7 +80,8 @@ export async function updateSubscriptionStatusAction(
   }
 
   try {
-    await updateAdminUserSubscriptionStatus(token, userId, active);
+    const user = await updateAdminUserSubscriptionStatus(token, userId, active);
+    return { ok: true, user };
   } catch (error) {
     return {
       ok: false,
@@ -91,14 +92,11 @@ export async function updateSubscriptionStatusAction(
       ),
     };
   }
-
-  revalidatePath("/admin/users");
-  return { ok: true };
 }
 
 export async function revertToPersonalAction(
   userId: string,
-): Promise<{ ok: false; message: string } | { ok: true }> {
+): Promise<ActionResult> {
   const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
@@ -106,7 +104,8 @@ export async function revertToPersonalAction(
   }
 
   try {
-    await revertAdminUserToPersonal(token, userId);
+    const user = await revertAdminUserToPersonal(token, userId);
+    return { ok: true, user };
   } catch (error) {
     return {
       ok: false,
@@ -117,15 +116,12 @@ export async function revertToPersonalAction(
       ),
     };
   }
-
-  revalidatePath("/admin/users");
-  return { ok: true };
 }
 
 export async function updateAccessOverrideAction(
   userId: string,
   override: boolean,
-): Promise<{ ok: false; message: string } | { ok: true }> {
+): Promise<ActionResult> {
   const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
@@ -133,7 +129,8 @@ export async function updateAccessOverrideAction(
   }
 
   try {
-    await updateAdminUserAccessOverride(token, userId, override);
+    const user = await updateAdminUserAccessOverride(token, userId, override);
+    return { ok: true, user };
   } catch (error) {
     return {
       ok: false,
@@ -144,15 +141,12 @@ export async function updateAccessOverrideAction(
       ),
     };
   }
-
-  revalidatePath("/admin/users");
-  return { ok: true };
 }
 
 export async function updateSubscriptionPricingAction(
   userId: string,
   input: { price?: number; discountPercent?: number },
-): Promise<{ ok: false; message: string } | { ok: true }> {
+): Promise<ActionResult> {
   const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
@@ -160,7 +154,8 @@ export async function updateSubscriptionPricingAction(
   }
 
   try {
-    await updateAdminUserSubscriptionPricing(token, userId, input);
+    const user = await updateAdminUserSubscriptionPricing(token, userId, input);
+    return { ok: true, user };
   } catch (error) {
     return {
       ok: false,
@@ -171,15 +166,12 @@ export async function updateSubscriptionPricingAction(
       ),
     };
   }
-
-  revalidatePath("/admin/users");
-  return { ok: true };
 }
 
 export async function addSubscriptionBonusAction(
   userId: string,
   days: number,
-): Promise<{ ok: false; message: string } | { ok: true }> {
+): Promise<ActionResult> {
   const dict = getDictionary(await getLocale());
   const token = await getServerToken();
   if (!token) {
@@ -187,7 +179,8 @@ export async function addSubscriptionBonusAction(
   }
 
   try {
-    await addAdminUserSubscriptionBonus(token, userId, days);
+    const user = await addAdminUserSubscriptionBonus(token, userId, days);
+    return { ok: true, user };
   } catch (error) {
     return {
       ok: false,
@@ -198,7 +191,4 @@ export async function addSubscriptionBonusAction(
       ),
     };
   }
-
-  revalidatePath("/admin/users");
-  return { ok: true };
 }

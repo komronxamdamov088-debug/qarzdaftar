@@ -1,14 +1,11 @@
 import { listAdminUsers } from "@/lib/admin-api";
 import { getCurrentUser } from "@/lib/debts-api";
 import { getServerToken } from "@/lib/session";
-import { formatDate } from "@/lib/format";
 import type { AdminUserSummary, CurrentUser } from "@/lib/types";
 import { ErrorState } from "@/components/error-state";
 import { getLocale } from "@/i18n/get-locale";
 import { getDictionary } from "@/i18n/dictionaries";
-import { RoleToggleButton } from "./role-toggle-button";
-import { BusinessStatusControl } from "./business-status-control";
-import { AccessOverrideToggle } from "./access-override-toggle";
+import { AdminUserCard } from "./admin-user-card";
 
 async function loadUsers(
   token: string,
@@ -94,70 +91,12 @@ export default async function AdminUsersPage(
       ) : (
         <div className="flex flex-col gap-3">
           {users.map((user) => (
-            <div
+            <AdminUserCard
               key={user.id}
-              className="flex flex-col gap-4 rounded-2xl bg-card p-4 shadow-sm sm:flex-row sm:items-start sm:justify-between"
-            >
-              <div className="flex flex-col gap-1">
-                {user.accountType === "business" ? (
-                  <span className="text-sm font-semibold">
-                    {user.businessName}
-                    <span className="ml-2 font-normal text-muted-foreground">
-                      {user.name}
-                    </span>
-                  </span>
-                ) : (
-                  <span className="text-sm font-semibold">{user.name}</span>
-                )}
-                <span className="text-xs text-muted-foreground">
-                  {dict.admin.tablePhone}: {user.phone ?? "—"}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {dict.admin.tableTelegram}:{" "}
-                  {user.telegramUsername
-                    ? `@${user.telegramUsername}`
-                    : user.telegramConnected
-                      ? dict.admin.telegramConnected
-                      : dict.admin.telegramNotConnected}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {user.role === "admin"
-                    ? dict.admin.roleAdmin
-                    : dict.admin.roleUser}
-                  {" · "}
-                  {formatDate(user.createdAt, locale)}
-                  {user.accessOverride && (
-                    <>
-                      {" · "}
-                      <span className="text-success">
-                        {dict.admin.accessOverrideActive}
-                      </span>
-                    </>
-                  )}
-                </span>
-                {user.cashPaymentRequestedAt && (
-                  <span className="mt-1 inline-flex w-fit items-center rounded-full bg-warning/15 px-2.5 py-1 text-xs font-medium text-warning">
-                    {dict.admin.cashPaymentRequested}{" "}
-                    {formatDate(user.cashPaymentRequestedAt, locale)}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex flex-col items-start gap-3 sm:items-end">
-                <div className="flex flex-wrap items-start gap-2">
-                  <RoleToggleButton
-                    userId={user.id}
-                    role={user.role}
-                    disabled={user.id === currentUser.id}
-                  />
-                  <AccessOverrideToggle
-                    userId={user.id}
-                    active={user.accessOverride}
-                  />
-                </div>
-                <BusinessStatusControl user={user} locale={locale} />
-              </div>
-            </div>
+              initialUser={user}
+              locale={locale}
+              isCurrentUser={user.id === currentUser.id}
+            />
           ))}
         </div>
       )}

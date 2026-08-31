@@ -3,15 +3,18 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "@/i18n/locale-context";
 import { updateUserRoleAction } from "./actions";
+import type { AdminUserSummary } from "@/lib/types";
 
 export function RoleToggleButton({
   userId,
   role,
   disabled,
+  onUpdate,
 }: {
   userId: string;
   role: "user" | "admin";
   disabled?: boolean;
+  onUpdate: (user: AdminUserSummary) => void;
 }) {
   const { dict } = useTranslations();
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +27,9 @@ export function RoleToggleButton({
       const result = await updateUserRoleAction(userId, nextRole);
       if (!result.ok) {
         setError(result.message);
+        return;
       }
+      onUpdate(result.user);
     });
   }
 
