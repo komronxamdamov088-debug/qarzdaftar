@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -30,6 +31,15 @@ export class DebtsController {
 
   @Post()
   create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateDebtDto) {
+    // Shop accounts need real customer outreach info to actually collect on
+    // a debt — enforced here, not just in the frontend form, same rule as
+    // every other backend-is-the-real-authority check in this codebase.
+    if (user.accountType === 'business' && !dto.person.phone) {
+      throw new BadRequestException({
+        code: 'PHONE_REQUIRED_FOR_DEBT',
+        message: 'Mijozning telefon raqamini kiriting',
+      });
+    }
     return this.debtsService.create(user.id, dto);
   }
 

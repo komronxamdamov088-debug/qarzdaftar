@@ -16,7 +16,14 @@ const STEPS = [
   "review",
 ] as const;
 
-export function AddDebtWizard() {
+// Mirrors backend PersonDto's phone regex exactly.
+const PHONE_RE = /^\+?[0-9]{9,15}$/;
+
+export function AddDebtWizard({
+  phoneRequired = false,
+}: {
+  phoneRequired?: boolean;
+}) {
   const { dict, locale } = useTranslations();
   const [stepIndex, setStepIndex] = useState(0);
   const [name, setName] = useState("");
@@ -36,6 +43,10 @@ export function AddDebtWizard() {
     setError(null);
     if (step === "person" && name.trim().length === 0) {
       setError(dict.newDebt.errorNameRequired);
+      return;
+    }
+    if (step === "person" && phoneRequired && !PHONE_RE.test(phone.trim())) {
+      setError(dict.newDebt.errorPhoneRequired);
       return;
     }
     if (step === "amount" && (!amount || Number(amount) <= 0)) {
@@ -92,7 +103,12 @@ export function AddDebtWizard() {
           <input
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
-            placeholder={dict.newDebt.phonePlaceholder}
+            type="tel"
+            placeholder={
+              phoneRequired
+                ? dict.newDebt.phonePlaceholderRequired
+                : dict.newDebt.phonePlaceholder
+            }
             className="rounded-lg border border-black/10 bg-card px-3 py-2.5 text-sm"
           />
         </div>
