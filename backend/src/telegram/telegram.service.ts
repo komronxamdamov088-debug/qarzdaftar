@@ -19,6 +19,10 @@ export class TelegramService {
   ) {}
 
   // Telegram login always find-or-creates by telegram_id only (see CLAUDE.md section 25 — phone-linking needs OTP, which isn't built yet).
+  // Every single Mini App open re-runs this (see frontend HomeGate — there's
+  // no "already have a session" skip), so the returning-user path is the
+  // hottest query in the whole app; it's a single embedded-join select
+  // (telegram_connections -> users) instead of two sequential round trips.
   async findOrCreateUserByTelegramId(
     telegramId: number,
     name: string,
@@ -26,7 +30,7 @@ export class TelegramService {
   ): Promise<User> {
     const { data: existingConnection, error: lookupError } = await this.supabase
       .from('telegram_connections')
-      .select('user_id')
+      .select('user:users(*)')
       .eq('telegram_id', telegramId)
       .maybeSingle();
 
@@ -34,17 +38,8 @@ export class TelegramService {
       throw new InternalServerErrorException(lookupError.message);
     }
 
-    if (existingConnection) {
-      const { data: user, error: userError } = await this.supabase
-        .from('users')
-        .select('*')
-        .eq('id', existingConnection.user_id)
-        .single();
-
-      if (userError) {
-        throw new InternalServerErrorException(userError.message);
-      }
-      return user;
+    if (existingConnection?.user) {
+      return existingConnection.user as unknown as User;
     }
 
     const { data: createdUser, error: insertUserError } = await this.supabase

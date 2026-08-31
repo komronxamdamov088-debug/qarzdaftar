@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginWithTelegramAction } from "@/lib/telegram-auth";
+import { useTranslations } from "@/i18n/locale-context";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -47,6 +48,7 @@ export function HomeGate({
   subtitle: string;
 }) {
   const router = useRouter();
+  const { dict } = useTranslations();
   const attempted = useRef(false);
   const [isTelegram] = useState(isTelegramContext);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +70,20 @@ export function HomeGate({
   }, [isTelegram, router]);
 
   if (isTelegram && !error) {
-    return <main className="flex flex-1" />;
+    // Telegram login (POST /auth/telegram) is a real network round trip on
+    // every single Mini App open (there's no "already have a session, skip
+    // login" fast path) — this used to render a blank screen for the whole
+    // wait, which reads as the app being frozen rather than loading.
+    return (
+      <main className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-10 text-center">
+        <div
+          className="h-8 w-8 animate-spin rounded-full border-2 border-muted-foreground/25 border-t-primary"
+          role="status"
+          aria-label={dict.common.loading}
+        />
+        <p className="text-sm text-muted-foreground">{dict.common.loading}</p>
+      </main>
+    );
   }
 
   if (error) {
