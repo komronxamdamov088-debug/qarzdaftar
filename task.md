@@ -784,6 +784,15 @@ Owner reported the Mini App itself takes very long to open, every time. Traced t
 
 **Honest scope note, not fixed**: the 3-round-trip chain itself is still there — this session cut the cost of the first link and fixed the perceived-frozen part of it, it did not eliminate the architectural requirement to re-login and re-fetch on every open. The previously-documented "Known remaining gap" below (network distance from Uzbekistan to Render/Supabase's US/EU hosting) is unrelated to this fix and still stands. **Pushed to production** as commit `3d6011e`.
 
+### Follow-up (same session): "Onlayn to'lov" buttons now open the real provider app instead of attempting merchant checkout
+
+Owner tried the just-shipped `cf838ed` provider buttons live and got `PROVIDER_NOT_CONFIGURED` on every tap (expected — no real merchant credentials exist) and asked for them to actually open Click/Payme/Yagona Pay instead. Clarified with a direct question first (three options: real merchant onboarding / open-the-app-manually / remove the buttons) — owner chose open-the-app-manually.
+
+- `subscription-checkout-picker.tsx` no longer calls the backend checkout endpoint at all — tapping a provider now calls `window.Telegram.WebApp.openLink(url)` (falls back to `window.open` outside Telegram, same pattern as `receipt-pdf-link.tsx`) to hand the shop off to that provider's own app/site, where they transfer to the owner's personal number (same one already in `OWNER_PAYMENT_INSTRUCTIONS`) and confirm via the existing "Men to'ladim" button.
+- New env vars `NEXT_PUBLIC_CLICK_APP_URL`/`NEXT_PUBLIC_PAYME_APP_URL`/`NEXT_PUBLIC_YAGONA_PAY_APP_URL` (`.env.example`). Click/Payme default to their well-known official domains (`my.click.uz`/`payme.uz`) when unset; Yagona Pay has no confidently-known public app URL (it's flagged as a "less-documented aggregator" in its own provider file's TODO), so it's left unconfigured by default and shows the existing `PROVIDER_NOT_CONFIGURED` message until the owner supplies a real one.
+- Removed `initiateSubscriptionCheckoutAction`/`initiateSubscriptionCheckout` (frontend-only — the backend's real-merchant-checkout endpoint is untouched, still there for if/when real credentials exist) and the now-dead `subscriptionGate.checkoutError` dict key, both added in `cf838ed` minutes earlier and immediately made dead by this follow-up.
+- Frontend `build`+`lint` clean; live `next dev` sweep of `/`, `/dashboard` both `200`. **Pushed to production** as commit `94bf191`.
+
 ### Production data reset #2 (2026-08-31, explicit user request+confirmation)
 
 Owner asked to delete every user except their own admin account. Confirmed scope via a direct yes/no question before acting (5 named non-admin users, with the exact names listed). Deleted via `DELETE FROM users WHERE id != <admin_id>` (service-role client, cascades to `debts`/`payments`/`receipts`/`reminders`/`telegram_connections`/`push_subscriptions`/`notifications` per their FK `on delete cascade`). Verified live: all cascaded tables at 0 rows, exactly 1 user (the admin) remained immediately after.
