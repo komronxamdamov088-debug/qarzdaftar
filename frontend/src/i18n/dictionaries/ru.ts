@@ -49,7 +49,6 @@ const ruDictionary: Dictionary = {
     pendingTitle: "Завершите оплату",
     pendingDescription:
       "Чтобы активировать аккаунт, оплатите выбранный план подписки.",
-    checkoutError: "Ошибка при запуске оплаты.",
     manualPaymentTitle: "Оплата вручную",
     manualPaymentHint:
       "После оплаты по указанным выше данным нажмите кнопку ниже — администратор проверит платёж и активирует ваш аккаунт.",
