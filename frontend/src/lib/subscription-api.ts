@@ -1,5 +1,9 @@
 import { apiFetch } from "./api";
-import type { CurrentUser, SubscriptionPlanMonths } from "./types";
+import type {
+  CurrentUser,
+  PaymentProviderName,
+  SubscriptionPlanMonths,
+} from "./types";
 
 // Self-serve shop registration — the Mini App is shop-only, so this is how a
 // blocked personal account becomes a business and picks a plan (see backend
@@ -36,5 +40,19 @@ export function requestCashPayment(token: string) {
 export function getOwnerPaymentInfo() {
   return apiFetch<{ instructions: string | null }>(
     "/subscription-payments/payment-info",
+  );
+}
+
+// Reads the plan/price already saved on the caller's own row (never
+// client-supplied) and returns a real provider checkout URL, or throws with
+// a PROVIDER_NOT_CONFIGURED code while no real Click/Payme/Yagona Pay
+// merchant credentials exist yet — same contract as debt-payment checkout.
+export function initiateSubscriptionCheckout(
+  token: string,
+  provider: PaymentProviderName,
+) {
+  return apiFetch<{ checkoutUrl: string; transactionId: string }>(
+    `/subscription-payments/${provider}/checkout`,
+    { method: "POST", token },
   );
 }

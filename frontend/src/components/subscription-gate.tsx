@@ -5,6 +5,7 @@ import { getOwnerPaymentInfo } from "@/lib/subscription-api";
 import type { CurrentUser } from "@/lib/types";
 import { BusinessRegisterForm } from "./business-register-form";
 import { ManualPaymentPanel } from "./manual-payment-panel";
+import { SubscriptionCheckoutPicker } from "./subscription-checkout-picker";
 
 // The screen every non-admin, non-access_override user sees on every
 // protected page until they're a business account with an active
@@ -65,10 +66,13 @@ export async function SubscriptionGate({ user }: { user: CurrentUser }) {
         </span>
       </div>
 
-      <ManualPaymentPanel
-        instructions={paymentInfo.instructions}
-        alreadyRequested={Boolean(user.cash_payment_requested_at)}
-      />
+      <div className="flex w-full max-w-sm flex-col gap-3">
+        <SubscriptionCheckoutPicker />
+        <ManualPaymentPanel
+          instructions={paymentInfo.instructions}
+          alreadyRequested={Boolean(user.cash_payment_requested_at)}
+        />
+      </div>
     </div>
   );
 }

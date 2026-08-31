@@ -47,7 +47,7 @@ const uzDictionary = {
     pendingTitle: "To'lovni yakunlang",
     pendingDescription:
       "Hisobingiz faollashtirilishi uchun tanlangan reja bo'yicha to'lovni amalga oshiring.",
-    onlinePaymentToggle: "Onlayn to'lov",
+    checkoutError: "To'lovni boshlashda xatolik yuz berdi.",
     manualPaymentTitle: "Qo'lda to'lash",
     manualPaymentHint:
       "Yuqoridagi ma'lumotlar bo'yicha to'lovni amalga oshirgach, quyidagi tugmani bosing — administrator pulni tekshirib, hisobingizni faollashtiradi.",

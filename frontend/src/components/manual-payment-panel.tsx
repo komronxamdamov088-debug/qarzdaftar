@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "@/i18n/locale-context";
 import { CashPaymentRequestButton } from "./cash-payment-request-button";
 
-// Replaces the old Click/Payme/Yagona Pay checkout picker on the
-// subscription-pending screen — the owner deliberately never registered a
-// real merchant account with any of those providers (see task.md Phase 14),
-// so those buttons only ever produced a "not configured" error. Selecting
-// "Onlayn to'lov" now opens the owner's real transfer details directly
-// instead of a broken redirect.
+// Manual/transfer payment path on the subscription-pending screen, shown
+// alongside SubscriptionCheckoutPicker (the real Click/Payme/Yagona Pay
+// buttons) — the owner hasn't registered merchant accounts with those
+// providers yet (see task.md Phase 14), so this gives a shop a way to pay
+// by direct transfer and self-confirm ("Men to'ladim") in the meantime.
+// Always shown expanded (no toggle) — this is the primary/only working
+// payment path today, so it must never be hidden behind an extra tap.
 export function ManualPaymentPanel({
   instructions,
   alreadyRequested,
@@ -18,24 +18,11 @@ export function ManualPaymentPanel({
   alreadyRequested: boolean;
 }) {
   const { dict } = useTranslations();
-  const [open, setOpen] = useState(alreadyRequested);
 
   if (!instructions) {
     // Never fake payment details that don't exist — fall back to the plain
     // "I've paid" action alone when the owner hasn't configured any.
     return <CashPaymentRequestButton alreadyRequested={alreadyRequested} />;
-  }
-
-  if (!open) {
-    return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="w-full max-w-sm rounded-full border border-black/10 py-2.5 text-sm font-medium transition hover:border-primary/40 hover:text-primary"
-      >
-        {dict.subscriptionGate.onlinePaymentToggle}
-      </button>
-    );
   }
 
   return (
