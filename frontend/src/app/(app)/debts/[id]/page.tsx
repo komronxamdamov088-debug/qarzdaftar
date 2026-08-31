@@ -213,7 +213,9 @@ export default async function DebtDetailPage(props: PageProps<"/debts/[id]">) {
         <PaymentButtons debtId={debt.id} defaultOpen={openPayment === "1"} />
       )}
 
-      <AiReminderPicker debtId={debt.id} />
+      {user.account_type !== "business" && (
+        <AiReminderPicker debtId={debt.id} />
+      )}
 
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-medium text-muted-foreground">

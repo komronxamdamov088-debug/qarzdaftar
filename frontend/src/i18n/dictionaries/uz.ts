@@ -193,6 +193,7 @@ const uzDictionary = {
     },
     namePlaceholder: "Ism familiya",
     phonePlaceholder: "Telefon raqami (ixtiyoriy)",
+    phonePlaceholderRequired: "Telefon raqami",
     typeGiven: "Men berdim",
     typeTaken: "Men oldim",
     structureOneTime: "Bir martada",
@@ -210,6 +211,7 @@ const uzDictionary = {
     create: "Yaratish",
     creating: "Saqlanmoqda...",
     errorNameRequired: "Ism kiritilishi shart.",
+    errorPhoneRequired: "Telefon raqamini to'g'ri kiriting.",
     errorInvalidAmount: "Summani to'g'ri kiriting.",
     submitError:
       "Qarzni saqlashda xatolik yuz berdi. Ma'lumotlarni tekshirib, qaytadan urinib ko'ring.",
@@ -424,6 +426,7 @@ const uzDictionary = {
       "Avval do'kon sifatida ro'yxatdan o'ting va rejani tanlang.",
     PHONE_ALREADY_REGISTERED:
       "Bu telefon raqami allaqachon boshqa hisobda ro'yxatdan o'tgan.",
+    AI_NOT_AVAILABLE_FOR_BUSINESS: "AI eslatma do'kon hisoblari uchun mavjud emas.",
     GENERIC: "Kutilmagan xatolik yuz berdi.",
   },
 };

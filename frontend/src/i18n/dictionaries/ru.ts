@@ -195,6 +195,7 @@ const ruDictionary: Dictionary = {
     },
     namePlaceholder: "Имя и фамилия",
     phonePlaceholder: "Номер телефона (необязательно)",
+    phonePlaceholderRequired: "Номер телефона",
     typeGiven: "Я дал в долг",
     typeTaken: "Я взял в долг",
     structureOneTime: "Единовременно",
@@ -212,6 +213,7 @@ const ruDictionary: Dictionary = {
     create: "Создать",
     creating: "Сохранение...",
     errorNameRequired: "Введите имя.",
+    errorPhoneRequired: "Введите корректный номер телефона.",
     errorInvalidAmount: "Введите корректную сумму.",
     submitError:
       "Не удалось сохранить долг. Проверьте данные и попробуйте ещё раз.",
@@ -427,6 +429,7 @@ const ruDictionary: Dictionary = {
       "Сначала зарегистрируйтесь как магазин и выберите план.",
     PHONE_ALREADY_REGISTERED:
       "Этот номер телефона уже зарегистрирован в другом аккаунте.",
+    AI_NOT_AVAILABLE_FOR_BUSINESS: "AI-напоминание недоступно для аккаунтов магазина.",
     GENERIC: "Произошла непредвиденная ошибка.",
   },
 };
